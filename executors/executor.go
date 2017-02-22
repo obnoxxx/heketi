@@ -27,6 +27,8 @@ type Executor interface {
 	VolumeReplaceBrick(host string, volume string, oldBrick *BrickInfo, newBrick *BrickInfo) error
 	VolumeInfo(host string, volume string) (*Volume, error)
 	SetLogLevel(level string)
+	BlockVolumeCreate(host string, blockVolume *BlockVolumeRequest) (*BlockVolumeInfo, error)
+	BlockVolumeDestroy(host string, blockHostingVolumeName string, blockVolumeName string) error
 }
 
 // Enumerate durability types
@@ -127,4 +129,26 @@ type Volumes struct {
 type VolInfo struct {
 	XMLName xml.Name `xml:"volInfo"`
 	Volumes Volumes  `xml:"volumes"`
+}
+
+type BlockVolumeRequest struct {
+	Name              string
+	Size              int
+	GlusterVolumeName string
+	GlusterNode       string
+	Hacount           int
+	BlockHosts        []string
+	Auth              bool
+}
+
+type BlockVolumeInfo struct {
+	Name              string
+	Size              int
+	GlusterVolumeName string
+	GlusterNode       string
+	Hacount           int
+	BlockHosts        []string
+	Iqn               string
+	Username          string
+	Password          string
 }
