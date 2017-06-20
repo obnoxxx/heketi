@@ -139,7 +139,6 @@ type BlockVolumeRequest struct {
 	BlockHosts        []string
 }
 
-// TODO: what does it exactly look like?
 type BlockVolumeInfo struct {
 	Name              string
 	Size              int
