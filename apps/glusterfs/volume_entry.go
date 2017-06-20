@@ -244,18 +244,24 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 	}
 
 	//
-	// Only consider those clusters that are not equipped
-	// with the Block flag.
+	// Consider those clusters that are equipped or not equipped
+	// with the Block flag with respect to the block flag on volume.
 	//
-	nonBlockClusters := []string{}
+	ValidateBlockClusters := []string{}
 	for _, clusterId := range possibleClusters {
 		err := db.View(func(tx *bolt.Tx) error {
 			c, err := NewClusterEntryFromId(tx, clusterId)
 			if err != nil {
 				return err
 			}
-			if !c.Info.Block {
-				nonBlockClusters = append(nonBlockClusters, clusterId)
+			if v.Info.Block {
+				if c.Info.Block {
+					ValidateBlockClusters = append(ValidateBlockClusters, clusterId)
+				}
+			} else {
+				if !c.Info.Block {
+					ValidateBlockClusters = append(ValidateBlockClusters, clusterId)
+				}
 			}
 			return nil
 		})
@@ -263,7 +269,7 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 			return err
 		}
 	}
-	possibleClusters = nonBlockClusters
+	possibleClusters = ValidateBlockClusters
 
 	// Check we have clusters
 	if len(possibleClusters) == 0 {
