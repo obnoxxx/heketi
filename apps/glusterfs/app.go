@@ -270,7 +270,7 @@ func (a *App) setBlockSettings() {
 	if a.conf.CreateBlockHostingVolumes != false {
 		logger.Info("Block: Auto Create Block Hosting Volume set to %v", a.conf.CreateBlockHostingVolumes)
 
-		// From volume_entry.go
+		// switch to auto creation of block hosting volumes
 		CreateBlockHostingVolumes = a.conf.CreateBlockHostingVolumes
 	}
 	if a.conf.NewBlockHostingVolumeSize != 0 {
@@ -397,13 +397,6 @@ func (a *App) SetRoutes(router *mux.Router) error {
 			Method:      "GET",
 			Pattern:     "/blockvolumes/{id:[A-Fa-f0-9]+}",
 			HandlerFunc: a.BlockVolumeInfo},
-		/* TODO:
-		rest.Route{
-			Name:        "BlockVolumeExpand",
-			Method:      "POST",
-			Pattern:     "/blockvolumes/{id:[A-Fa-f0-9]+}/expand",
-			HandlerFunc: a.BlockVolumeExpand},
-		*/
 		rest.Route{
 			Name:        "BlockVolumeDelete",
 			Method:      "DELETE",
