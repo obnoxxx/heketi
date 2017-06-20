@@ -52,10 +52,10 @@ name:
 package:
 	@echo $(PACKAGE)
 
-heketi: server
-
-server: glide.lock vendor
+heketi: glide.lock vendor
 	go build $(LDFLAGS) -o $(APP_NAME)
+
+server: heketi
 
 vendor:
 ifndef GLIDEPATH
