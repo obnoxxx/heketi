@@ -177,7 +177,7 @@ func (a *App) BlockVolumeDelete(w http.ResponseWriter, r *http.Request) {
 
 		err := volume.Destroy(a.db, a.executor)
 
-		// If it fails for some reason, we will need to add to the DB again
+		// TODO: If it fails for some reason, we will need to add to the DB again
 		// or hold state on the entry "DELETING"
 
 		if err != nil {
