@@ -41,6 +41,7 @@ func CreateBlockHostingVolume(db *bolt.DB, executor executors.Executor, allocato
 	msg.Durability.Type = api.DurabilityReplicate
 	msg.Size = NewBlockHostingVolumeSize
 	msg.Durability.Replicate.Replica = 3
+	msg.Block = true
 
 	vol := NewVolumeEntryFromRequest(&msg)
 
@@ -54,24 +55,6 @@ func CreateBlockHostingVolume(db *bolt.DB, executor executors.Executor, allocato
 	if err != nil {
 		logger.LogError("Failed to create Block Hosting Volume: %v", err)
 		return nil, err
-	}
-
-	err = db.Update(func(tx *bolt.Tx) error {
-		vol.Info.BlockInfo.FreeSize = vol.Info.Size
-		vol.Info.Block = true
-
-		logger.Debug("Storing volume info in the DB: [%+v]", vol)
-
-		err = vol.Save(tx)
-		return err
-	})
-
-	if err != nil {
-		logger.LogError("Failed to save the Block Hosting volume settings: %v", err)
-		err = vol.Destroy(db, executor)
-		if err != nil {
-			logger.LogError("Failed to destroy the failed Block Hosting volume: %v", err)
-		}
 	}
 
 	logger.Info("Block Hosting Volume created (name[%v] id[%v] ", vol.Info.Name, vol.Info.Id)
