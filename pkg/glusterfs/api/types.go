@@ -246,8 +246,8 @@ func (v *VolumeInfoResponse) String() string {
 		"Mount: %v\n"+
 		"Mount Options: backup-volfile-servers=%v\n"+
 		"Block: %v\n"+
-		"Blockinfo: FreeSize: %v\n"+
-		"Blockinfo: BlockVolumes: %v\n"+
+		"Free Size: %v\n"+
+		"Block Volumes: %v\n"+
 		"Durability Type: %v\n",
 		v.Name,
 		v.Size,
