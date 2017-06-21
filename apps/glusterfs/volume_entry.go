@@ -74,6 +74,10 @@ func NewVolumeEntryFromRequest(req *api.VolumeCreateRequest) *VolumeEntry {
 	vol.Info.Size = req.Size
 	vol.Info.Block = req.Block
 
+	if vol.Info.Block {
+		vol.Info.BlockInfo.FreeSize = req.Size
+	}
+
 	// Set default durability values
 	durability := vol.Info.Durability.Type
 	switch {
