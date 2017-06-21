@@ -35,6 +35,7 @@ type ConfigFileNode struct {
 }
 type ConfigFileCluster struct {
 	Nodes []ConfigFileNode `json:"nodes"`
+	Block bool             `json:"block"`
 }
 type ConfigFile struct {
 	Clusters []ConfigFileCluster `json:"clusters"`
@@ -147,7 +148,9 @@ var topologyLoadCommand = &cobra.Command{
 					// See if we need to create a cluster
 					if clusterInfo == nil {
 						fmt.Fprintf(stdout, "Creating cluster ... ")
-						clusterInfo, err = heketi.ClusterCreate()
+						req := &api.ClusterCreateRequest{}
+						req.Block = cluster.Block
+						clusterInfo, err = heketi.ClusterCreate(req)
 						if err != nil {
 							return err
 						}

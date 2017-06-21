@@ -16,7 +16,12 @@ import (
 	"strings"
 
 	"github.com/heketi/heketi/client/api/go-client"
+	"github.com/heketi/heketi/pkg/glusterfs/api"
 	"github.com/spf13/cobra"
+)
+
+var (
+	cl_block bool
 )
 
 func init() {
@@ -25,6 +30,14 @@ func init() {
 	clusterCommand.AddCommand(clusterDeleteCommand)
 	clusterCommand.AddCommand(clusterListCommand)
 	clusterCommand.AddCommand(clusterInfoCommand)
+
+	clusterCreateCommand.Flags().BoolVar(&cl_block, "block", false,
+		"\n\tOptional: Create a cluster that is intended to only host"+
+		"\n\tblock-hosting volumes."+
+		"\n\tNote: If there is at least one cluster with the 'block' flag,"+
+		"\n\tthen only clusters with the 'block' flag will be used to for"+
+		"\n\tcreation of block-hosting volumes.")
+
 	clusterCreateCommand.SilenceUsage = true
 	clusterDeleteCommand.SilenceUsage = true
 	clusterInfoCommand.SilenceUsage = true
@@ -43,10 +56,13 @@ var clusterCreateCommand = &cobra.Command{
 	Long:    "Create a cluster",
 	Example: "  $ heketi-cli cluster create",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		req := &api.ClusterCreateRequest{}
+		req.Block = cl_block
+
 		// Create a client to talk to Heketi
 		heketi := client.NewClient(options.Url, options.User, options.Key)
 		// Create cluster
-		cluster, err := heketi.ClusterCreate()
+		cluster, err := heketi.ClusterCreate(req)
 		if err != nil {
 			return err
 		}
@@ -129,6 +145,7 @@ var clusterInfoCommand = &cobra.Command{
 			fmt.Fprintf(stdout, "Cluster id: %v\n", info.Id)
 			fmt.Fprintf(stdout, "Nodes:\n%v", strings.Join(info.Nodes, "\n"))
 			fmt.Fprintf(stdout, "\nVolumes:\n%v", strings.Join(info.Volumes, "\n"))
+			fmt.Fprintf(stdout, "\nBlock: %v\n", info.Block)
 		}
 
 		return nil
@@ -159,7 +176,17 @@ var clusterListCommand = &cobra.Command{
 		} else {
 			fmt.Fprintf(stdout, "Clusters:\n")
 			for _, clusterid := range list.Clusters {
-				fmt.Fprintf(stdout, "Id:%v\n", clusterid)
+				cluster, err := heketi.ClusterInfo(clusterid)
+				if err != nil {
+					return err
+				}
+
+				blockstr := ""
+				if cluster.Block {
+					blockstr = " [block]"
+				}
+
+				fmt.Fprintf(stdout, "Id:%v%v\n", clusterid, blockstr)
 			}
 		}
 

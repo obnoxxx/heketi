@@ -113,10 +113,15 @@ type Cluster struct {
 	Volumes []VolumeInfoResponse `json:"volumes"`
 	Nodes   []NodeInfoResponse   `json:"nodes"`
 	Id      string               `json:"id"`
+	Block   bool                 `json:"block"`
 }
 
 type TopologyInfoResponse struct {
 	ClusterList []Cluster `json:"clusters"`
+}
+
+type ClusterCreateRequest struct {
+	Block bool `json:"block"`
 }
 
 type ClusterInfoResponse struct {
