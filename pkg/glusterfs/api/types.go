@@ -155,6 +155,7 @@ type VolumeCreateRequest struct {
 	Name       string               `json:"name"`
 	Durability VolumeDurabilityInfo `json:"durability,omitempty"`
 	Gid        int64                `json:"gid,omitempty"`
+	Block      bool                 `json:"block,omitempty"`
 
 	Snapshot struct {
 		Enable bool    `json:"enable"`
@@ -173,7 +174,6 @@ type VolumeInfo struct {
 			Options    map[string]string `json:"options"`
 		} `json:"glusterfs"`
 	} `json:"mount"`
-	Block     bool `json:"block"`
 	BlockInfo struct {
 		FreeSize     int              `json:"freesize,omitempty"`
 		BlockVolumes sort.StringSlice `json:"blockvolume,omitempty"`
