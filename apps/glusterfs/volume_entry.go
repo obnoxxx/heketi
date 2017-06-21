@@ -72,7 +72,7 @@ func NewVolumeEntryFromRequest(req *api.VolumeCreateRequest) *VolumeEntry {
 	vol.Info.Durability = req.Durability
 	vol.Info.Snapshot = req.Snapshot
 	vol.Info.Size = req.Size
-	vol.Info.Block = false
+	vol.Info.Block = req.Block
 
 	// Set default durability values
 	durability := vol.Info.Durability.Type
@@ -401,6 +401,9 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 		}
 
 		// Save volume information
+		if v.Info.Block {
+			v.Info.BlockInfo.FreeSize = v.Info.Size
+		}
 		err = v.Save(tx)
 		if err != nil {
 			return err
