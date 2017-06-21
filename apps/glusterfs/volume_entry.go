@@ -244,10 +244,13 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 	}
 
 	//
-	// Consider those clusters that are equipped or not equipped
-	// with the Block flag with respect to the block flag on volume.
+	// If the request carries the Block flag, consider only
+	// those clusters that carry the Block flag if there are
+	// any, otherwise consider all clusters.
+	// If the request does *not* carry the Block flag, consider
+	// only those clusters that do not carry the Block flag.
 	//
-	ValidateBlockClusters := []string{}
+	var candidateClusters []string
 	for _, clusterId := range possibleClusters {
 		err := db.View(func(tx *bolt.Tx) error {
 			c, err := NewClusterEntryFromId(tx, clusterId)
@@ -256,11 +259,11 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 			}
 			if v.Info.Block {
 				if c.Info.Block {
-					ValidateBlockClusters = append(ValidateBlockClusters, clusterId)
+					candidateClusters = append(candidateClusters, clusterId)
 				}
 			} else {
 				if !c.Info.Block {
-					ValidateBlockClusters = append(ValidateBlockClusters, clusterId)
+					candidateClusters = append(candidateClusters, clusterId)
 				}
 			}
 			return nil
@@ -269,7 +272,9 @@ func (v *VolumeEntry) Create(db *bolt.DB,
 			return err
 		}
 	}
-	possibleClusters = ValidateBlockClusters
+	if !v.Info.Block || candidateClusters != nil {
+		possibleClusters = candidateClusters
+	}
 
 	// Check we have clusters
 	if len(possibleClusters) == 0 {
