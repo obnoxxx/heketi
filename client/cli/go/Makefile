@@ -3,7 +3,7 @@
 #
 
 .PHONY: version all run dist clean
-	
+
 APP_NAME := heketi-cli
 SHA := $(shell git rev-parse --short HEAD)
 BRANCH := $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
@@ -21,12 +21,12 @@ endif
 DIR=.
 
 ifdef APP_SUFFIX
-  VERSION = $(VER)-$(subst /,-,$(APP_SUFFIX))
+	VERSION = $(VER)-$(subst /,-,$(APP_SUFFIX))
 else
 ifeq (master,$(BRANCH))
-  VERSION = $(VER)
+	VERSION = $(VER)
 else
-  VERSION = $(VER)-$(BRANCH)
+	VERSION = $(VER)-$(BRANCH)
 endif
 endif
 
@@ -63,7 +63,7 @@ build:
 run: build
 	./$(APP_NAME)
 
-test: 
+test:
 	go test ./...
 
 clean:

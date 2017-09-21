@@ -17,22 +17,22 @@ GOHOSTOS := $(shell go env GOHOSTOS)
 GOBUILDFLAGS :=
 ifeq ($(GOOS),$(GOHOSTOS))
 ifeq ($(GOARCH),$(GOHOSTARCH))
-  GOBUILDFLAGS :=-i
+	GOBUILDFLAGS :=-i
 endif
 endif
 GLIDEPATH := $(shell command -v glide 2> /dev/null)
 DIR=.
 
 ifdef APP_SUFFIX
-  VERSION = $(VER)-$(subst /,-,$(APP_SUFFIX))
+	VERSION = $(VER)-$(subst /,-,$(APP_SUFFIX))
 else
 ifeq (master,$(BRANCH))
-  VERSION = $(VER)
+	VERSION = $(VER)
 else
 ifeq ($(VER),$(TAG))
-  VERSION = $(VER)
+	VERSION = $(VER)
 else
-  VERSION = $(VER)-$(BRANCH)
+	VERSION = $(VER)-$(BRANCH)
 endif
 endif
 endif
@@ -156,5 +156,5 @@ darwin_amd64_dist:
 release: deps_tarball darwin_amd64_dist linux_arm64_dist linux_arm_dist linux_amd64_dist
 
 .PHONY: server client test clean name run version release \
-        darwin_amd64_dist linux_arm_dist linux_amd64_dist linux_arm64_dist \
-        heketi clean_vendor deps_tarball
+	darwin_amd64_dist linux_arm_dist linux_amd64_dist linux_arm64_dist \
+	heketi clean_vendor deps_tarball
