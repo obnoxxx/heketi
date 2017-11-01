@@ -46,6 +46,11 @@ func (a *App) ClusterCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := a.allocator.AddCluster(entry.Info.Id); err != nil {
+		// TODO: lol, error handling
+		return
+	}
+
 	// Send back we created it (as long as we did not fail)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
