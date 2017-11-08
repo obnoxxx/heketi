@@ -147,7 +147,7 @@ func TestDeviceAddDelete(t *testing.T) {
 			tests.Assert(t, r.StatusCode == http.StatusOK)
 			time.Sleep(time.Millisecond * 10)
 		} else {
-			tests.Assert(t, r.StatusCode == http.StatusNoContent, r.StatusCode)
+			tests.Assert(t, r.StatusCode == http.StatusNoContent)
 			break
 		}
 	}
