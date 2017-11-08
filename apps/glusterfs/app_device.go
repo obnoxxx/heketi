@@ -134,6 +134,7 @@ func (a *App) DeviceAdd(w http.ResponseWriter, r *http.Request) {
 			// Add to allocator
 			err = a.allocator.AddDevice(clusterEntry, nodeEntry, device)
 			if err != nil {
+				logger.LogError("Failed to add device to the ring: %v", err)
 				return err
 			}
 
