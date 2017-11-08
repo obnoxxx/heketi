@@ -98,7 +98,7 @@ func (s *SimpleAllocator) AddDevice(cluster *ClusterEntry,
 	// Create a new cluster id if one is not available
 	clusterId := cluster.Info.Id
 	// TODO: in the future, we should do this call separately
-	if err := s.AddCluster(clusterId); err != nil {
+	if err := s.AddCluster(clusterId); err != nil  && err != ErrFound {
 		return err
 	}
 
@@ -146,10 +146,8 @@ func (s *SimpleAllocator) AddCluster(clusterId string) error {
 	defer s.lock.Unlock()
 
 	if _, ok := s.rings[clusterId]; ok {
-		// TODO: in the future, we should do it this way
-		//logger.LogError("cluster id %s already exists", clusterId)
-		//return ErrFound
-		return nil
+		logger.LogError("cluster id %s already exists", clusterId)
+		return ErrFound
 	}
 
 	// Add cluster to map
