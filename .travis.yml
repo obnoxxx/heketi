@@ -3,6 +3,7 @@ sudo: true
 before_install:
     - sudo apt-get update -qq
     - sudo apt-get install -qq python python-pip
+    - pyenv global system 3.5
     - sudo pip install tox nose
 install:
 - bash .travis-fork-fix
