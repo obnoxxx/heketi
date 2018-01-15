@@ -1,0 +1,44 @@
+
+
+high level operations
+
+- VolumeCreate:
+
+  db modifications:
+  - adds BRICK entries
+  - updates the free space on the DEVICEs
+  - adds VOLUME entry
+  - adds the new volume to the volume list in the CLUSTER entry
+
+  high level idea:
+  - do all db ops, marked "in flight" (in one transaction)
+  - do all executor ops, rolling back if anything fails
+  - either undo the db ops or remove "in flight" character (one transaction)
+
+  one goal: make it possible to continue / clean up after a crash ..
+
+  need store in-flight info for the operation.
+  - where?
+  - what exactly?
+
+  possibility:
+  - separate bucket(s) for the in-flight operations
+    entry:
+    - operation volume create
+    - input params
+    - what would be the db ops to be undone in case of failure
+    - [maybe] progress info...
+
+ on resume after crash (or similar):
+ - if there is anything in the "log/journal":
+   - possibility: print message and exit --> let admin act
+   - or (later?): take up the task again,
+     check gluster's state and try to continue the operation
+     (or roll it back)
+   - problem: we might have crashed before we could record any
+     success or failure notion into the db, hence we need to detect...
+
+
+
+
+
