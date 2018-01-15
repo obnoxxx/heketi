@@ -12,16 +12,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/gorilla/mux"
 	"github.com/heketi/heketi/apps"
 	"github.com/heketi/heketi/apps/glusterfs"
 	"github.com/heketi/heketi/middleware"
 	"github.com/spf13/cobra"
 	"github.com/urfave/negroni"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 
 	restclient "k8s.io/client-go/rest"
 )
@@ -37,6 +38,9 @@ var (
 	HEKETI_VERSION = "(dev)"
 	configfile     string
 	showVersion    bool
+	editMode       bool
+	jsonFile       string
+	dbFile         string
 )
 
 var RootCmd = &cobra.Command{
@@ -46,15 +50,27 @@ var RootCmd = &cobra.Command{
 	Example: "heketi --config=/config/file/path/",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Heketi %v\n", HEKETI_VERSION)
-		if !showVersion {
+		if showVersion {
+			// Quit here if all we needed to do was show version
+			os.Exit(0)
+		} else {
 			// Check configuration file was given
-			if configfile == "" {
+			if configfile == "" && editMode == false {
 				fmt.Fprintln(os.Stderr, "Please provide configuration file")
 				os.Exit(1)
 			}
-		} else {
-			// Quit here if all we needed to do was show version
-			os.Exit(0)
+			// Check args for edit mode
+			if editMode == true {
+				fmt.Fprintf(os.Stderr, "rtalur testing")
+				if jsonFile == "" {
+					fmt.Fprintln(os.Stderr, "Please provide file for input")
+					os.Exit(1)
+				}
+				if dbFile == "" {
+					fmt.Fprintln(os.Stderr, "Please provide path for db file")
+					os.Exit(1)
+				}
+			}
 		}
 	},
 }
@@ -62,6 +78,9 @@ var RootCmd = &cobra.Command{
 func init() {
 	RootCmd.Flags().StringVar(&configfile, "config", "", "Configuration file")
 	RootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version")
+	RootCmd.Flags().BoolVarP(&editMode, "editmode", "", false, "Runs heketi in database edit mode")
+	RootCmd.Flags().StringVar(&jsonFile, "jsonfile", "", "Input file with data for db in JSON format")
+	RootCmd.Flags().StringVar(&dbFile, "dbfile", "", "File path for db to be created")
 	RootCmd.SilenceUsage = true
 }
 
@@ -96,6 +115,16 @@ func main() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
+	}
+
+	if editMode == true {
+		err := glusterfs.DbCreate(jsonFile, dbFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "db creation failed %v", err.Error())
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "db created")
+		return
 	}
 
 	// Quit here if all we needed to do was show usage/help
