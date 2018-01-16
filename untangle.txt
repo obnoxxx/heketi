@@ -5,13 +5,13 @@ high level operations
 - VolumeCreate:
 
   db modifications:
-  - adds BRICK entries
-  - updates the free space on the DEVICEs
-  - adds VOLUME entry
+  - adds BRICK entries (-> calls executor to create bricks with lvm commands)
+  - updates the free space and brick list on the DEVICEs
+  - adds VOLUME entry (-> calls executor to do gluster vol create...)
   - adds the new volume to the volume list in the CLUSTER entry
 
   high level idea:
-  - do all db ops, marked "in flight" (in one transaction)
+  - do all db ops, marked "in flight", in *one* transaction
   - do all executor ops, rolling back if anything fails
   - either undo the db ops or remove "in flight" character (one transaction)
 
