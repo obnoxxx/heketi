@@ -181,8 +181,10 @@ func dbDumpInternal(db *bolt.DB) (Db, error) {
 	return dump, nil
 }
 
-// DbDump2 ... Creates a JSON output representing the state of DB
-func DbDump2(jsonfile string, dbfile string) error {
+// DbDump ... Creates a JSON output representing the state of DB
+// This is the variant to be called offline, i.e. when the server is not
+// running.
+func DbDump(jsonfile string, dbfile string) error {
 	// Load config file
 	fp, err := os.Create(jsonfile)
 	if err != nil {
@@ -209,6 +211,7 @@ func DbDump2(jsonfile string, dbfile string) error {
 }
 
 // DbDump ... Creates a JSON output representing the state of DB
+// This is the variant to be called via the API and running in the App
 func (a *App) DbDump(w http.ResponseWriter, r *http.Request) {
 	dump, err := dbDumpInternal(a.db)
 	if err != nil {

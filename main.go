@@ -142,7 +142,7 @@ func main() {
 		return
 	}
 	if dumpMode == true {
-		err := glusterfs.DbDump2(jsonFile, dbFile)
+		err := glusterfs.DbDump(jsonFile, dbFile)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "db dump failed %v", err.Error())
 			os.Exit(1)
