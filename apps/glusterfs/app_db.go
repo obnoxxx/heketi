@@ -32,6 +32,174 @@ type Db struct {
 	DbAttributes []DbAttributeEntry `json:"dbattributeentries"`
 }
 
+// DbDump2 ... Creates a JSON output representing the state of DB
+func DbDump2(jsonfile string, dbfile string) error {
+	var dump Db
+	clusterEntryList := make([]ClusterEntry, 0)
+	volEntryList := make([]VolumeEntry, 0)
+	brickEntryList := make([]BrickEntry, 0)
+	nodeEntryList := make([]NodeEntry, 0)
+	deviceEntryList := make([]DeviceEntry, 0)
+	blockvolEntryList := make([]BlockVolumeEntry, 0)
+	dbattributeEntryList := make([]DbAttributeEntry, 0)
+
+	// Load config file
+	fp, err := os.Create(jsonfile)
+	if err != nil {
+		return fmt.Errorf("Could not open input file: %v", err.Error())
+	}
+	defer fp.Close()
+
+	// Setup BoltDB database
+	dbhandle, err := bolt.Open(dbfile, 0600, &bolt.Options{Timeout: 3 * time.Second})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to open database: %v. exiting", err)
+		os.Exit(1)
+	} else {
+		err := dbhandle.View(func(tx *bolt.Tx) error {
+
+			logger.Info("rtalurlogs: starting volume bucket")
+
+			// Volume Bucket
+			volumes, err := VolumeList(tx)
+			if err != nil {
+				return err
+			}
+
+			for _, volume := range volumes {
+				logger.Info("rtalurlogs: adding volume entry %v", volume)
+				volEntry, err := NewVolumeEntryFromId(tx, volume)
+				if err != nil {
+					return err
+				}
+				volEntryList = append(volEntryList, *volEntry)
+			}
+
+			// Brick Bucket
+			logger.Info("rtalurlogs: starting brick bucket")
+			bricks, err := BrickList(tx)
+			if err != nil {
+				return err
+			}
+
+			for _, brick := range bricks {
+				logger.Info("rtalurlogs: adding brick entry %v", brick)
+				brickEntry, err := NewBrickEntryFromId(tx, brick)
+				if err != nil {
+					return err
+				}
+				brickEntryList = append(brickEntryList, *brickEntry)
+			}
+
+			// Cluster Bucket
+			logger.Info("rtalurlogs: starting cluster bucket")
+			clusters, err := ClusterList(tx)
+			if err != nil {
+				return err
+			}
+
+			for _, cluster := range clusters {
+				logger.Info("rtalurlogs: adding cluster entry %v", cluster)
+				clusterEntry, err := NewClusterEntryFromId(tx, cluster)
+				if err != nil {
+					return err
+				}
+				clusterEntryList = append(clusterEntryList, *clusterEntry)
+			}
+
+			// Node Bucket
+			logger.Info("rtalurlogs: starting node bucket")
+			nodes, err := NodeList(tx)
+			if err != nil {
+				return err
+			}
+
+			for _, node := range nodes {
+				logger.Info("rtalurlogs: adding node entry %v", node)
+				if strings.HasPrefix(node, "MANAGE") || strings.HasPrefix(node, "STORAGE") {
+					logger.Info("rtalurlogs, ignoring registry key")
+				} else {
+					nodeEntry, err := NewNodeEntryFromId(tx, node)
+					if err != nil {
+						return err
+					}
+					nodeEntryList = append(nodeEntryList, *nodeEntry)
+				}
+			}
+
+			// Device Bucket
+			logger.Info("rtalurlogs: starting device bucket")
+			devices, err := DeviceList(tx)
+			if err != nil {
+				return err
+			}
+
+			for _, device := range devices {
+				logger.Info("rtalurlogs: adding device entry %v", device)
+				if strings.HasPrefix(device, "DEVICE") {
+					logger.Info("rtalurlogs, ignoring registry key")
+				} else {
+					deviceEntry, err := NewDeviceEntryFromId(tx, device)
+					if err != nil {
+						return err
+					}
+					deviceEntryList = append(deviceEntryList, *deviceEntry)
+				}
+			}
+
+			// BlockVolume Bucket
+			blockvolumes, err := BlockVolumeList(tx)
+			if err != nil {
+				return err
+			}
+
+			for _, blockvolume := range blockvolumes {
+				logger.Info("rtalurlogs: adding blockvolume entry %v", blockvolume)
+				blockvolEntry, err := NewBlockVolumeEntryFromId(tx, blockvolume)
+				if err != nil {
+					return err
+				}
+				blockvolEntryList = append(blockvolEntryList, *blockvolEntry)
+			}
+
+			// DbAttributes Bucket
+			dbattributes, err := DbAttributeList(tx)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Unable to list dbattributes %v", err)
+				return err
+			}
+
+			for _, dbattribute := range dbattributes {
+				logger.Info("rtalurlogs: adding dbattribute entry %v", dbattribute)
+				dbattributeEntry, err := NewDbAttributeEntryFromKey(tx, dbattribute)
+				if err != nil {
+					return err
+				}
+				dbattributeEntryList = append(dbattributeEntryList, *dbattributeEntry)
+			}
+
+			return nil
+		})
+		if err != nil {
+			return fmt.Errorf("Could not construct dump from DB: %v", err.Error())
+		}
+	}
+
+	dump.Clusters = clusterEntryList
+	dump.Volumes = volEntryList
+	dump.Bricks = brickEntryList
+	dump.Nodes = nodeEntryList
+	dump.Devices = deviceEntryList
+	dump.BlockVolumes = blockvolEntryList
+	dump.DbAttributes = dbattributeEntryList
+
+	if err := json.NewEncoder(fp).Encode(dump); err != nil {
+		return fmt.Errorf("Could not encode dump as JSON: %v", err.Error())
+	}
+
+	return nil
+}
+
 // DbDump ... Creates a JSON output representing the state of DB
 func (a *App) DbDump(w http.ResponseWriter, r *http.Request) {
 	var dump Db

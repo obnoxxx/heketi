@@ -39,6 +39,7 @@ var (
 	configfile     string
 	showVersion    bool
 	editMode       bool
+	dumpMode       bool
 	jsonFile       string
 	dbFile         string
 )
@@ -55,12 +56,25 @@ var RootCmd = &cobra.Command{
 			os.Exit(0)
 		} else {
 			// Check configuration file was given
-			if configfile == "" && editMode == false {
+			if configfile == "" && (editMode == false && dumpMode == false) {
 				fmt.Fprintln(os.Stderr, "Please provide configuration file")
 				os.Exit(1)
 			}
 			// Check args for edit mode
 			if editMode == true {
+				fmt.Fprintf(os.Stderr, "rtalur testing")
+				if jsonFile == "" {
+					fmt.Fprintln(os.Stderr, "Please provide file for input")
+					os.Exit(1)
+				}
+				if dbFile == "" {
+					fmt.Fprintln(os.Stderr, "Please provide path for db file")
+					os.Exit(1)
+				}
+			}
+
+			// Check args for edit mode
+			if dumpMode == true {
 				fmt.Fprintf(os.Stderr, "rtalur testing")
 				if jsonFile == "" {
 					fmt.Fprintln(os.Stderr, "Please provide file for input")
@@ -79,6 +93,7 @@ func init() {
 	RootCmd.Flags().StringVar(&configfile, "config", "", "Configuration file")
 	RootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version")
 	RootCmd.Flags().BoolVarP(&editMode, "editmode", "", false, "Runs heketi in database edit mode")
+	RootCmd.Flags().BoolVarP(&dumpMode, "dumpmode", "", false, "Runs heketi in database dump mode")
 	RootCmd.Flags().StringVar(&jsonFile, "jsonfile", "", "Input file with data for db in JSON format")
 	RootCmd.Flags().StringVar(&dbFile, "dbfile", "", "File path for db to be created")
 	RootCmd.SilenceUsage = true
@@ -124,6 +139,15 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Fprintf(os.Stderr, "db created")
+		return
+	}
+	if dumpMode == true {
+		err := glusterfs.DbDump2(jsonFile, dbFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "db dump failed %v", err.Error())
+			os.Exit(1)
+		}
+		fmt.Fprintf(os.Stderr, "db dumped")
 		return
 	}
 
