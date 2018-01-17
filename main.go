@@ -38,7 +38,7 @@ var (
 	HEKETI_VERSION = "(dev)"
 	configfile     string
 	showVersion    bool
-	editMode       bool
+	importMode     bool
 	dumpMode       bool
 	jsonFile       string
 	dbFile         string
@@ -56,12 +56,12 @@ var RootCmd = &cobra.Command{
 			os.Exit(0)
 		} else {
 			// Check configuration file was given
-			if configfile == "" && (editMode == false && dumpMode == false) {
+			if configfile == "" && (importMode == false && dumpMode == false) {
 				fmt.Fprintln(os.Stderr, "Please provide configuration file")
 				os.Exit(1)
 			}
-			// Check args for edit mode
-			if editMode == true {
+			// Check args for import mode
+			if importMode == true {
 				fmt.Fprintf(os.Stderr, "rtalur testing")
 				if jsonFile == "" {
 					fmt.Fprintln(os.Stderr, "Please provide file for input")
@@ -73,7 +73,7 @@ var RootCmd = &cobra.Command{
 				}
 			}
 
-			// Check args for edit mode
+			// Check args for import mode
 			if dumpMode == true {
 				fmt.Fprintf(os.Stderr, "rtalur testing")
 				if jsonFile == "" {
@@ -92,7 +92,7 @@ var RootCmd = &cobra.Command{
 func init() {
 	RootCmd.Flags().StringVar(&configfile, "config", "", "Configuration file")
 	RootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version")
-	RootCmd.Flags().BoolVarP(&editMode, "editmode", "", false, "Runs heketi in database edit mode")
+	RootCmd.Flags().BoolVarP(&importMode, "importmode", "", false, "Runs heketi in database import mode")
 	RootCmd.Flags().BoolVarP(&dumpMode, "dumpmode", "", false, "Runs heketi in database dump mode")
 	RootCmd.Flags().StringVar(&jsonFile, "jsonfile", "", "Input file with data for db in JSON format")
 	RootCmd.Flags().StringVar(&dbFile, "dbfile", "", "File path for db to be created")
@@ -132,7 +132,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	if editMode == true {
+	if importMode == true {
 		err := glusterfs.DbCreate(jsonFile, dbFile)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "db creation failed %v", err.Error())
