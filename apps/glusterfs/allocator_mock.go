@@ -171,6 +171,20 @@ func (d *MockAllocator) addDevicesFromDb(tx *bolt.Tx, clusterId string) error {
 	return nil
 }
 
+func (d *MockAllocator) HasNode(clusterId string, zone int,
+	nodeId string) bool {
+
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
+	if _, ok := d.clustermap[clusterId]; !ok {
+		return false
+	}
+
+	// and now?
+	return true
+}
+
 func (d *MockAllocator) HasDevice(clusterId string, zone int,
 	nodeId, deviceId string) bool {
 
