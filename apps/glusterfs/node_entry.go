@@ -278,57 +278,6 @@ func (n *NodeEntry) Delete(tx *bolt.Tx) error {
 	return EntryDelete(tx, n, n.Info.Id)
 }
 
-func (n *NodeEntry) removeAllDisksFromRing(tx *bolt.Tx,
-	a Allocator) error {
-
-	cluster, err := NewClusterEntryFromId(tx, n.Info.ClusterId)
-	if err != nil {
-		return err
-	}
-
-	for _, deviceId := range n.Devices {
-		device, err := NewDeviceEntryFromId(tx, deviceId)
-		if err != nil {
-			return err
-		}
-
-		// Remove device
-		err = a.RemoveDevice(cluster, n, device)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (n *NodeEntry) addAllDisksToRing(tx *bolt.Tx,
-	a Allocator) error {
-
-	cluster, err := NewClusterEntryFromId(tx, n.Info.ClusterId)
-	if err != nil {
-		return err
-	}
-
-	// Add all devices
-	for _, deviceId := range n.Devices {
-		device, err := NewDeviceEntryFromId(tx, deviceId)
-		if err != nil {
-			return err
-		}
-
-		// Add device
-		if device.isOnline() {
-			err = a.AddDevice(cluster, n, device)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
 func (n *NodeEntry) SetState(db *bolt.DB, e executors.Executor,
 	a Allocator,
 	s api.EntryState) error {
@@ -355,17 +304,11 @@ func (n *NodeEntry) SetState(db *bolt.DB, e executors.Executor,
 		case api.EntryStateOnline:
 			return nil
 		case api.EntryStateOffline:
-			// Remove all disks from Ring
 			err := db.Update(func(tx *bolt.Tx) error {
-				err := n.removeAllDisksFromRing(tx, a)
-				if err != nil {
-					return err
-				}
-
 				// Save state
 				n.State = s
 				// Save new state
-				err = n.Save(tx)
+				err := n.Save(tx)
 				if err != nil {
 					return err
 				}
@@ -386,14 +329,9 @@ func (n *NodeEntry) SetState(db *bolt.DB, e executors.Executor,
 		case api.EntryStateOffline:
 			return nil
 		case api.EntryStateOnline:
-			// Add all disks back
 			err := db.Update(func(tx *bolt.Tx) error {
-				err := n.addAllDisksToRing(tx, a)
-				if err != nil {
-					return err
-				}
 				n.State = s
-				err = n.Save(tx)
+				err := n.Save(tx)
 				if err != nil {
 					return err
 				}
