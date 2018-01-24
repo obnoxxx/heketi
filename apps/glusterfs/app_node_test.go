@@ -1091,8 +1091,8 @@ func TestNodeState(t *testing.T) {
 	tests.Assert(t, deviceInfo.State == "online")
 
 	// Check that the device is in the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 1)
-	tests.Assert(t, mockAllocator.clustermap[cluster.Id][0] == device.Id)
+	tests.Assert(t, mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Set node offline
 	request := []byte(`{
@@ -1120,7 +1120,8 @@ func TestNodeState(t *testing.T) {
 	}
 
 	// Check it was removed from the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 0)
+	tests.Assert(t, !mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Get node info
 	node, err = c.NodeInfo(node.Id)
@@ -1137,7 +1138,8 @@ func TestNodeState(t *testing.T) {
 	tests.Assert(t, r.StatusCode == http.StatusAccepted)
 
 	// Check it was removed from the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 0)
+	tests.Assert(t, !mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Get node info
 	node, err = c.NodeInfo(node.Id)
@@ -1170,8 +1172,8 @@ func TestNodeState(t *testing.T) {
 	}
 
 	// Check that the device is in the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 1)
-	tests.Assert(t, mockAllocator.clustermap[cluster.Id][0] == device.Id)
+	tests.Assert(t, mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Set online again, should succeed
 	request = []byte(`{
@@ -1199,8 +1201,8 @@ func TestNodeState(t *testing.T) {
 	}
 
 	// Check that the device is in the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 1)
-	tests.Assert(t, mockAllocator.clustermap[cluster.Id][0] == device.Id)
+	tests.Assert(t, mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Get node info
 	node, err = c.NodeInfo(node.Id)
@@ -1217,8 +1219,8 @@ func TestNodeState(t *testing.T) {
 	tests.Assert(t, r.StatusCode == http.StatusBadRequest)
 
 	// Check that the device is still in the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 1)
-	tests.Assert(t, mockAllocator.clustermap[cluster.Id][0] == device.Id)
+	tests.Assert(t, mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Check node is still online
 	node, err = c.NodeInfo(node.Id)
@@ -1251,7 +1253,8 @@ func TestNodeState(t *testing.T) {
 	}
 
 	// Check it was removed from the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 0)
+	tests.Assert(t, !mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Set Node offline
 	request = []byte(`{
@@ -1279,7 +1282,8 @@ func TestNodeState(t *testing.T) {
 	}
 
 	// Check it was removed from the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 0)
+	tests.Assert(t, !mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Set Node online -- Device is still offline and should not be added
 	request = []byte(`{
@@ -1307,7 +1311,8 @@ func TestNodeState(t *testing.T) {
 	}
 
 	// Check device is not in ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 0)
+	tests.Assert(t, !mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 	// Now make device online
 	request = []byte(`{
@@ -1335,8 +1340,8 @@ func TestNodeState(t *testing.T) {
 	}
 
 	// Now it should be back in the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 1)
-	tests.Assert(t, mockAllocator.clustermap[cluster.Id][0] == device.Id)
+	tests.Assert(t, mockAllocator.HasDevice(cluster.Id, node.Zone,
+		node.Id, device.Id))
 
 }
 
@@ -1412,7 +1417,10 @@ func TestNodeInfoAfterDelete(t *testing.T) {
 	}
 
 	// Check it was removed from the ring
-	tests.Assert(t, len(mockAllocator.clustermap[cluster.Id]) == 0)
+	// TODO: can we check the node?
+	// The mock allocator does (currently) not track the nodes...
+	//tests.Assert(t, !mockAllocator.HasNode(cluster.Id, node.Zone,
+	//	node.Id))
 
 	// Get node info
 	node, err = c.NodeInfo(node.Id)
