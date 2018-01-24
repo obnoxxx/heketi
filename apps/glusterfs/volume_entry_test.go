@@ -981,7 +981,7 @@ func TestVolumeEntryCreateCheckingClustersForSpace(t *testing.T) {
 
 	// Create volume
 	err = v.Create(app.db, app.executor, app.Allocator())
-	tests.Assert(t, err == nil)
+	tests.Assert(t, err == nil, err)
 
 	// Check database volume exists
 	var info *api.VolumeInfoResponse
