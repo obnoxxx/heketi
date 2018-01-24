@@ -171,38 +171,6 @@ func (d *DeviceEntry) Delete(tx *bolt.Tx) error {
 	return EntryDelete(tx, d, d.Info.Id)
 }
 
-func (d *DeviceEntry) removeDeviceFromRing(tx *bolt.Tx,
-	a Allocator) error {
-
-	node, err := NewNodeEntryFromId(tx, d.NodeId)
-	if err != nil {
-		return err
-	}
-
-	cluster, err := NewClusterEntryFromId(tx, node.Info.ClusterId)
-	if err != nil {
-		return err
-	}
-
-	return a.RemoveDevice(cluster, node, d)
-}
-
-func (d *DeviceEntry) addDeviceToRing(tx *bolt.Tx,
-	a Allocator) error {
-
-	node, err := NewNodeEntryFromId(tx, d.NodeId)
-	if err != nil {
-		return err
-	}
-
-	cluster, err := NewClusterEntryFromId(tx, node.Info.ClusterId)
-	if err != nil {
-		return err
-	}
-
-	return a.AddDevice(cluster, node, d)
-}
-
 func (d *DeviceEntry) SetState(db *bolt.DB,
 	e executors.Executor,
 	a Allocator,
@@ -230,17 +198,11 @@ func (d *DeviceEntry) SetState(db *bolt.DB,
 		case api.EntryStateOnline:
 			return nil
 		case api.EntryStateOffline:
-			// Remove disk from Ring
 			err := db.Update(func(tx *bolt.Tx) error {
-				err := d.removeDeviceFromRing(tx, a)
-				if err != nil {
-					return err
-				}
-
 				// Save state
 				d.State = s
 				// Save new state
-				err = d.Save(tx)
+				err := d.Save(tx)
 				if err != nil {
 					return err
 				}
@@ -263,12 +225,8 @@ func (d *DeviceEntry) SetState(db *bolt.DB,
 		case api.EntryStateOnline:
 			// Add disk back
 			err := db.Update(func(tx *bolt.Tx) error {
-				err := d.addDeviceToRing(tx, a)
-				if err != nil {
-					return err
-				}
 				d.State = s
-				err = d.Save(tx)
+				err := d.Save(tx)
 				if err != nil {
 					return err
 				}
