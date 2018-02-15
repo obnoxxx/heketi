@@ -330,6 +330,15 @@ func (volExpandReq VolumeExpandRequest) Validate() error {
 	)
 }
 
+type VolumeSnapshotCreateRequest struct {
+	Name                 string               `json:"name,omitempty"`
+	Description          string               `json:"description,omitempty"`
+}
+
+type VolumeSnapshotCloneRequest struct {
+	Name                 string               `json:"name,omitempty"`
+}
+
 // BlockVolume
 
 type BlockVolumeCreateRequest struct {

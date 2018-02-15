@@ -389,6 +389,33 @@ func (a *App) SetRoutes(router *mux.Router) error {
 			Pattern:     "/volumes",
 			HandlerFunc: a.VolumeList},
 
+		// Volume Snapshots
+		rest.Route{
+			Name:        "VolumeSnapshotCreate",
+			Method:      "POST",
+			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots",
+			HandlerFunc: a.VolumeSnapshotCreate},
+		rest.Route{
+			Name:        "VolumeSnapshotInfo",
+			Method:      "GET",
+			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots/{id:[A-Fa-f0-9]+}",
+			HandlerFunc: a.VolumeSnapshotInfo},
+		rest.Route{
+			Name:        "VolumeSnapshotClone",
+			Method:      "POST",
+			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots/{id:[A-Fa-f0-9]+}/clone",
+			HandlerFunc: a.VolumeSnapshotClone},
+		rest.Route{
+			Name:        "VolumeSnapshotDelete",
+			Method:      "DELETE",
+			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots/{id:[A-Fa-f0-9]+}",
+			HandlerFunc: a.VolumeSnapshotDelete},
+		rest.Route{
+			Name:        "VolumeSnapshotList",
+			Method:      "GET",
+			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots",
+			HandlerFunc: a.VolumeSnapshotList},
+
 		// BlockVolumes
 		rest.Route{
 			Name:        "BlockVolumeCreate",
