@@ -103,6 +103,27 @@ func init() {
 	volumeExpandCommand.SilenceUsage = true
 	volumeInfoCommand.SilenceUsage = true
 	volumeListCommand.SilenceUsage = true
+
+	volumeCommand.AddCommand(volumeSnapshotCreateCommand)
+	volumeSnapshotCreateCommand.Flags().StringVar(&volname, "name", "",
+		"\n\tOptional: Name of the snapshot. Only set if really necessary")
+	volumeSnapshotCreateCommand.Flags().StringVar(&volname, "description", "",
+		"\n\tOptional: Human readable description for the snapshot")
+	volumeSnapshotCreateCommand.SilenceUsage = true
+
+	volumeCommand.AddCommand(volumeSnapshotDeleteCommand)
+	volumeSnapshotDeleteCommand.SilenceUsage = true
+
+	volumeCommand.AddCommand(volumeSnapshotCloneCommand)
+	volumeSnapshotCloneCommand.Flags().StringVar(&volname, "name", "",
+		"\n\tOptional: Name of the newly cloned volume. Only set if really necessary")
+	volumeSnapshotCloneCommand.SilenceUsage = true
+
+	volumeCommand.AddCommand(volumeSnapshotInfoCommand)
+	volumeSnapshotCloneCommand.SilenceUsage = true
+
+	volumeCommand.AddCommand(volumeSnapshotListCommand)
+	volumeSnapshotCloneCommand.SilenceUsage = true
 }
 
 var volumeCommand = &cobra.Command{
@@ -384,5 +405,71 @@ var volumeListCommand = &cobra.Command{
 		}
 
 		return nil
+	},
+}
+
+var volumeSnapshotCreateCommand = &cobra.Command{
+	Use:     "snapshot-create",
+	Short:   "Creates a snapshot",
+	Long:    "Creates a snapshot",
+	Example: "  $ heketi-cli volume snapshot-create -volume=886a86a868711bef83001",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return errors.New("snapshot-create is not implemented yet")
+	},
+}
+
+var volumeSnapshotDeleteCommand = &cobra.Command{
+	Use:     "snapshot-delete",
+	Short:   "Deletes the snapshot",
+	Long:    "Deletes the snapshot",
+	Example: "  $ heketi-cli volume snapshot-delete -snapshot=886a86a868711bef83001",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// ensure proper number of args
+		s := cmd.Flags().Args()
+		if len(s) < 1 {
+			return errors.New("Snapshot id missing")
+		}
+
+		snapshotId := cmd.Flags().Arg(0)
+
+		// TODO: implement heketi.VolumeSnapshotDelete()
+		//heketi := client.NewClient(options.Url, options.User, options.Key)
+		//err := heketi.VolumeSnapshotDelete(snapshotId)
+		err := errors.New("snapshot-delete is not implemented yet")
+		if err == nil {
+			fmt.Fprintf(stdout, "Snapshot %s deleted\n", snapshotId)
+		}
+
+		return err
+	},
+}
+
+var volumeSnapshotCloneCommand = &cobra.Command{
+	Use:     "snapshot-clone",
+	Short:   "Clones a snapshot",
+	Long:    "Clones a snapshot",
+	Example: "  $ heketi-cli volume snapshot-clone -snapshot=886a86a868711bef83001",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return errors.New("snapshot-list is not implemented yet")
+	},
+}
+
+var volumeSnapshotInfoCommand = &cobra.Command{
+	Use:     "snapshot-info",
+	Short:   "Shows the information of a snapshot",
+	Long:    "Shows the information of a snapshot",
+	Example: "  $ heketi-cli volume snapshot-info -volume=886a86a868711bef83001",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return errors.New("snapshot-info is not implemented yet")
+	},
+}
+
+var volumeSnapshotListCommand = &cobra.Command{
+	Use:     "snapshot-list",
+	Short:   "Lists all snapshots for a volume",
+	Long:    "Lists all snapshots for a volume",
+	Example: "  $ heketi-cli volume snapshot-list -volume=886a86a868711bef83001",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return errors.New("snapshot-list is not implemented yet")
 	},
 }
