@@ -43,25 +43,17 @@ func tryAllocateBrickOnDevice(v *VolumeEntry, device *DeviceEntry,
 }
 
 func findDeviceAndBrickForSet(tx *bolt.Tx, v *VolumeEntry,
-	devcache map[string](*DeviceEntry),
 	deviceCh <-chan string,
 	errc <-chan error,
 	setlist []*BrickEntry,
-	brick_size uint64) (*BrickEntry, *DeviceEntry, error) {
+	brick_size uint64) (*BrickEntry, error) {
 
 	// Check the ring for devices to place the brick
 	for deviceId := range deviceCh {
 
-		// Get device entry from cache if possible
-		device, ok := devcache[deviceId]
-		if !ok {
-			// Get device entry from db otherwise
-			var err error
-			device, err = NewDeviceEntryFromId(tx, deviceId)
-			if err != nil {
-				return nil, nil, err
-			}
-			devcache[deviceId] = device
+		device, err := NewDeviceEntryFromId(tx, deviceId)
+		if err != nil {
+			return nil, err
 		}
 
 		brick := tryAllocateBrickOnDevice(v, device, setlist, brick_size)
@@ -69,21 +61,20 @@ func findDeviceAndBrickForSet(tx *bolt.Tx, v *VolumeEntry,
 			continue
 		}
 
-		return brick, device, nil
+		return brick, nil
 	}
 
 	// Check if allocator returned an error
 	if err := <-errc; err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// No devices found
-	return nil, nil, ErrNoSpace
+	return nil, ErrNoSpace
 }
 
 type BrickAllocation struct {
-	Bricks  []*BrickEntry
-	Devices []*DeviceEntry
+	Bricks []*BrickEntry
 }
 
 func allocateBricks(
@@ -95,11 +86,8 @@ func allocateBricks(
 	brick_size uint64) (*BrickAllocation, error) {
 
 	r := &BrickAllocation{
-		Bricks:  []*BrickEntry{},
-		Devices: []*DeviceEntry{},
+		Bricks: []*BrickEntry{},
 	}
-
-	devcache := map[string](*DeviceEntry){}
 
 	err := db.View(func(tx *bolt.Tx) error {
 
@@ -125,8 +113,8 @@ func allocateBricks(
 			for i := 0; i < v.Durability.BricksInSet(); i++ {
 				logger.Debug("%v / %v", i, v.Durability.BricksInSet())
 
-				brick, device, err := findDeviceAndBrickForSet(tx,
-					v, devcache, deviceCh, errc, setlist,
+				brick, err := findDeviceAndBrickForSet(tx,
+					v, deviceCh, errc, setlist,
 					brick_size)
 				if err != nil {
 					return err
@@ -139,11 +127,8 @@ func allocateBricks(
 
 				// Save the brick entry to create later
 				r.Bricks = append(r.Bricks, brick)
-				r.Devices = append(r.Devices, device)
 
 				setlist = append(setlist, brick)
-
-				device.BrickAdd(brick.Id())
 			}
 		}
 
