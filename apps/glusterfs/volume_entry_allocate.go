@@ -566,9 +566,12 @@ func (v *VolumeEntry) allocBricks(
 			if err != nil {
 				return err
 			}
-		}
-		for _, x := range r.Devices {
-			err := x.Save(tx)
+			d, err := NewDeviceEntryFromId(tx, x.Info.DeviceId)
+			if err != nil {
+				return err
+			}
+			d.BrickAdd(x.Id())
+			err = d.Save(tx)
 			if err != nil {
 				return err
 			}
