@@ -1,0 +1,73 @@
+#!/bin/bash
+
+REF1="$1"
+REF2="$2"
+
+usage() {
+	echo "USAGE: $0 [REF1] [REF2]"
+}
+
+if [ -z "${REF1}" ]; then
+	usage
+	exit 1
+fi
+
+if [ -z "${REF2}" ]; then
+	usage
+	exit 2
+fi
+
+CONDITION="${REF1}..${REF2}"
+
+AUTHORS="$(git log --pretty=format:'%ae' --no-merges ${CONDITION} | sort -u)"
+
+TOTAL_COMMITS="$(git log --pretty=oneline --no-merges ${CONDITION} | wc -l)"
+
+DATE1="$(git show ${REF1} | grep ^Date | head -n1 | sed -e 's/^Date: *//')"
+DATE2="$(git show ${REF2} | grep ^Date | head -n1 | sed -e 's/^Date: *//')"
+
+declare -A aliases
+aliases['SaravanaStorageNetwork@users.noreply.github.com']='sarumuga@redhat.com'
+aliases['lpabon@users.noreply.github.com']='lpabon@coreos.com'
+aliases['luis.pabon@coreos.com']='lpabon@coreos.com'
+aliases['lpabon@redhat.com']='lpabon@coreos.com'
+aliases['jarrpa@gmail.com']='jarrpa@redhat.com'
+aliases['humble.devassy@gmail.com']='hchiramm@redhat.com'
+aliases['humble@localhost.localdomain']='hchiramm@redhat.com'
+aliases['raghavendra.talur@gmail.com']='rtalur@redhat.com'
+aliases['obnox@samba.org']='obnox@redhat.com'
+aliases['prasanna.kalever@redhat.com']='pkalever@redhat.com'
+
+declare -A author_commits
+
+for AUTHOR in ${AUTHORS} ; do
+	author="${AUTHOR}"
+	CMD="git log --pretty=oneline --no-merges --author=${AUTHOR} ${CONDITION}"
+	AUTHOR_NUM_COMMITS="$($CMD | wc -l)"
+	#echo " - author '${AUTHOR}': ${AUTHOR_NUM_COMMITS}"
+	if [ ${aliases[${AUTHOR}]+x} ]; then
+		author="${aliases[${AUTHOR}]}"
+		#echo " - author ${AUTHOR} --> ${author}"
+	fi
+	if [ ${author_commits[${author}]+x} ]; then
+		author_commits[${author}]=$(( ${author_commits[${author}]} + ${AUTHOR_NUM_COMMITS} ))
+	else
+		author_commits[${author}]=${AUTHOR_NUM_COMMITS}
+	fi
+done
+
+num_authors=$(echo ${!author_commits[@]} | wc -w)
+
+echo "${REF1}: ${DATE1}"
+echo "${REF2}: ${DATE2}"
+echo
+
+echo "total commits: ${TOTAL_COMMITS}"
+echo "different authors: ${num_authors}"
+echo
+
+for author in "${!author_commits[@]}"; do
+	echo "${author}: ${author_commits[${author}]}"
+done | sort -k2 -n -r
+
+echo
