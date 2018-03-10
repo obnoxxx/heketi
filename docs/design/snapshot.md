@@ -33,8 +33,8 @@ $ heketi-cli volume snapshot-info <snap_uuid>
 
 # API Proposal
 
-For file volume types only. A similar implementation might get added for
-block-volumes at a later time.
+The API is layed out here for file volume types only. The samy API will be
+added for block-volumes at a later time.
 
 ### Create a Snapshot
 * **Method:** _POST_
