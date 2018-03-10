@@ -120,9 +120,32 @@ added for block-volumes at a later time.
 
 # Future API Extensions
 
-### Clone a Volume
+
+### Clone a Volume directly
+
+This is a flavor that clones a volume directly.
+Implicitly, it creates a snapshot, activates
+and clones it, and then deletes the snapshot again.
+It is a convenience method for cloning for users
+only interested in the clone and not in the snapshots.
+
 * **Method:** _POST_
 * **Endpoint**:`/volumes/{volume_uuid}/clone`
+* **Content-Type**: `application/json`
+* **Response HTTP Status Code**: 202, See [Asynchronous Operations](#asynchronous-operations)
+* **Temporary Resource Response HTTP Status Code**: 303, `Location` header will contain `/volumes/{volume_uuid}/snapshots/{snapshot_uuid}`. See [Snapshot Info](#snapshot_info) for JSON response.
+* **JSON Request**:
+    * name: _string_, _optional_, Name of the clone. If not provided, the name of the snapshot will be `snap_{id}`, for example `snap_728faa5522838746abce2980`
+    * description: _string_, _optional_, Description of the snapshot. If not provided, the description will be empty.
+    * Example:
+
+```json
+{
+    "name": "my_clone",
+    "description": "my own clone"
+}
+```
+
 
 ### Activate a Snapshot
 * **Method:** _POST_
