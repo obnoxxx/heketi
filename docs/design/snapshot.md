@@ -118,9 +118,6 @@ added for block-volumes at a later time.
 }
 ```
 
-# Future API Extensions
-
-
 ### Clone a Volume directly
 
 This is a flavor that clones a volume directly.
@@ -145,6 +142,9 @@ only interested in the clone and not in the snapshots.
     "description": "my own clone"
 }
 ```
+
+
+# Future API Extensions
 
 
 ### Activate a Snapshot
