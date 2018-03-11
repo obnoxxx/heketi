@@ -108,6 +108,9 @@ func init() {
 	volumeSnapshotCommand.Flags().StringVar(&description, "description", "",
 		"\n\tOptional: Human readable description for the snapshot")
 	volumeSnapshotCommand.SilenceUsage = true
+
+	volumeCommand.AddCommand(volumeCloneCommand)
+	volumeCloneCommand.SilenceUsage = true
 }
 
 var volumeCommand = &cobra.Command{
@@ -410,6 +413,26 @@ var volumeSnapshotCommand = &cobra.Command{
 		//heketi := client.NewClient(options.Url, options.User, options.Key)
 		//snapshot, err := heketi.VolumeSnapshot(volumeId)
 		err := errors.New("snapshot is not implemented yet")
+
+		return err
+	},
+}
+
+var volumeCloneCommand = &cobra.Command{
+	Use:     "clone",
+	Short:   "Creates a clone",
+	Long:    "Creates a clone",
+	Example: "  $ heketi-cli volume clone 886a86a868711bef83001",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		s := cmd.Flags().Args()
+		if len(s) < 1 {
+			return errors.New("Volume id missing")
+		}
+
+		//volumeId := cmd.Flags().Arg(0)
+		//heketi := client.NewClient(options.Url, options.User, options.Key)
+		//volume, err := heketi.VolumeCloneCreate(volumeId)
+		err := errors.New("clone is not implemented yet")
 
 		return err
 	},
