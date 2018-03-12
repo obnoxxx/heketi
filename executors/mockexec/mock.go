@@ -15,23 +15,27 @@ import (
 
 type MockExecutor struct {
 	// These functions can be overwritten for testing
-	MockGlusterdCheck      func(host string) error
-	MockPeerProbe          func(exec_host, newnode string) error
-	MockPeerDetach         func(exec_host, newnode string) error
-	MockDeviceSetup        func(host, device, vgid string) (*executors.DeviceInfo, error)
-	MockDeviceTeardown     func(host, device, vgid string) error
-	MockBrickCreate        func(host string, brick *executors.BrickRequest) (*executors.BrickInfo, error)
-	MockBrickDestroy       func(host string, brick *executors.BrickRequest) error
-	MockBrickDestroyCheck  func(host string, brick *executors.BrickRequest) error
-	MockVolumeCreate       func(host string, volume *executors.VolumeRequest) (*executors.Volume, error)
-	MockVolumeExpand       func(host string, volume *executors.VolumeRequest) (*executors.Volume, error)
-	MockVolumeDestroy      func(host string, volume string) error
-	MockVolumeDestroyCheck func(host, volume string) error
-	MockVolumeReplaceBrick func(host string, volume string, oldBrick *executors.BrickInfo, newBrick *executors.BrickInfo) error
-	MockVolumeInfo         func(host string, volume string) (*executors.Volume, error)
-	MockHealInfo           func(host string, volume string) (*executors.HealInfo, error)
-	MockBlockVolumeCreate  func(host string, blockVolume *executors.BlockVolumeRequest) (*executors.BlockVolumeInfo, error)
-	MockBlockVolumeDestroy func(host string, blockHostingVolumeName string, blockVolumeName string) error
+	MockGlusterdCheck         func(host string) error
+	MockPeerProbe             func(exec_host, newnode string) error
+	MockPeerDetach            func(exec_host, newnode string) error
+	MockDeviceSetup           func(host, device, vgid string) (*executors.DeviceInfo, error)
+	MockDeviceTeardown        func(host, device, vgid string) error
+	MockBrickCreate           func(host string, brick *executors.BrickRequest) (*executors.BrickInfo, error)
+	MockBrickDestroy          func(host string, brick *executors.BrickRequest) error
+	MockBrickDestroyCheck     func(host string, brick *executors.BrickRequest) error
+	MockVolumeCreate          func(host string, volume *executors.VolumeRequest) (*executors.Volume, error)
+	MockVolumeExpand          func(host string, volume *executors.VolumeRequest) (*executors.Volume, error)
+	MockVolumeDestroy         func(host string, volume string) error
+	MockVolumeDestroyCheck    func(host, volume string) error
+	MockVolumeReplaceBrick    func(host string, volume string, oldBrick *executors.BrickInfo, newBrick *executors.BrickInfo) error
+	MockVolumeInfo            func(host string, volume string) (*executors.Volume, error)
+	MockVolumeSnapshotCreate  func(host string, volume *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error)
+	MockVolumeSnapshotClone   func(host string, volume *executors.VolumeSnapshotRequest) (*executors.Volume, error)
+	MockVolumeSnapshotDestroy func(host string, snapshot string) error
+	MockVolumeSnapshotInfo    func(host string, snapshot string) (*executors.VolumeSnapshot, error)
+	MockHealInfo              func(host string, volume string) (*executors.HealInfo, error)
+	MockBlockVolumeCreate     func(host string, blockVolume *executors.BlockVolumeRequest) (*executors.BlockVolumeInfo, error)
+	MockBlockVolumeDestroy    func(host string, blockHostingVolumeName string, blockVolumeName string) error
 }
 
 func NewMockExecutor() (*MockExecutor, error) {
@@ -110,6 +114,35 @@ func NewMockExecutor() (*MockExecutor, error) {
 			Bricks: Bricks,
 		}
 		return vinfo, nil
+	}
+
+	m.MockVolumeSnapshotCreate = func(host string, volume *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error) {
+		snapshot := &executors.VolumeSnapshot{
+			Name: volume.Name,
+			// TODO: fill more properties
+		}
+
+		return snapshot, nil
+	}
+
+	m.MockVolumeSnapshotClone = func(host string, volume *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
+		vinfo := &executors.Volume{}
+		// TODO: fill more properties
+
+		return vinfo, nil
+	}
+
+	m.MockVolumeSnapshotDestroy = func(host string, snapshot string) error {
+		return nil
+	}
+
+	m.MockVolumeSnapshotInfo = func(host string, snapshot string) (*executors.VolumeSnapshot, error) {
+		snapshotInfo := &executors.VolumeSnapshot{
+			Name: snapshot,
+			// TODO: fill more properties
+		}
+
+		return snapshotInfo, nil
 	}
 
 	m.MockHealInfo = func(host string, volume string) (*executors.HealInfo, error) {
@@ -202,6 +235,22 @@ func (m *MockExecutor) VolumeReplaceBrick(host string, volume string, oldBrick *
 
 func (m *MockExecutor) VolumeInfo(host string, volume string) (*executors.Volume, error) {
 	return m.MockVolumeInfo(host, volume)
+}
+
+func (m *MockExecutor) VolumeSnapshotCreate(host string, volume *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error) {
+	return m.MockVolumeSnapshotCreate(host, volume)
+}
+
+func (m *MockExecutor) VolumeSnapshotClone(host string, volume *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
+	return m.MockVolumeSnapshotClone(host, volume)
+}
+
+func (m *MockExecutor) VolumeSnapshotDestroy(host string, snapshot string) error {
+	return m.MockVolumeSnapshotDestroy(host, snapshot)
+}
+
+func (m *MockExecutor) VolumeSnapshotInfo(host string, snapshot string) (*executors.VolumeSnapshot, error) {
+	return m.MockVolumeSnapshotInfo(host, snapshot)
 }
 
 func (m *MockExecutor) HealInfo(host string, volume string) (*executors.HealInfo, error) {
