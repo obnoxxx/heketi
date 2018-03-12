@@ -283,6 +283,22 @@ func (s *CmdExecutor) VolumeReplaceBrick(host string, volume string, oldBrick *e
 
 }
 
+func (s *CmdExecutor) VolumeSnapshotCreate(host string, volume *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error) {
+	return nil, fmt.Errorf("VolumeSnapshotCreate is not implemented yet")
+}
+
+func (s *CmdExecutor) VolumeSnapshotClone(host string, volume *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
+	return nil, fmt.Errorf("VolumeSnapshotClone is not implemented yet")
+}
+
+func (s *CmdExecutor) VolumeSnapshotDestroy(host string, snapshot string) error {
+	return fmt.Errorf("VolumeSnapshotDestroy is not implemented yet")
+}
+
+func (s *CmdExecutor) VolumeSnapshotInfo(host string, snapshot string) (*executors.VolumeSnapshot, error) {
+	return nil, fmt.Errorf("VolumeSnapshotInfo is not implemented yet")
+}
+
 func (s *CmdExecutor) HealInfo(host string, volume string) (*executors.HealInfo, error) {
 
 	godbc.Require(volume != "")

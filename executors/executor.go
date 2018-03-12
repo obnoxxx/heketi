@@ -27,6 +27,11 @@ type Executor interface {
 	VolumeExpand(host string, volume *VolumeRequest) (*Volume, error)
 	VolumeReplaceBrick(host string, volume string, oldBrick *BrickInfo, newBrick *BrickInfo) error
 	VolumeInfo(host string, volume string) (*Volume, error)
+	VolumeSnapshotCreate(host string, volume *VolumeSnapshotRequest) (*VolumeSnapshot, error)
+	VolumeSnapshotClone(host string, volume *VolumeSnapshotRequest) (*Volume, error)
+	VolumeSnapshotDestroy(host string, snapshot string) error
+	// TODO(removeme): VolumeSnapshotList is a DB operation, not remote
+	VolumeSnapshotInfo(host string, snapshot string) (*VolumeSnapshot, error)
 	HealInfo(host string, volume string) (*HealInfo, error)
 	SetLogLevel(level string)
 	BlockVolumeCreate(host string, blockVolume *BlockVolumeRequest) (*BlockVolumeInfo, error)
@@ -79,6 +84,53 @@ type VolumeRequest struct {
 
 	// Replica
 	Replica int
+}
+
+type VolumeSnapshotRequest struct {
+	// name of the volume to clone
+	Volume      string
+	// new, cloned volume name
+	Name        string
+	Description string
+}
+
+// TODO: automagically parse the XML output into types/structs
+//
+// # gluster --mode=script --xml snapshot info mysnap
+// <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+// <cliOutput>
+//   <opRet>0</opRet>
+//   <opErrno>0</opErrno>
+//   <opErrstr/>
+//   <snapInfo>
+//     <count>1</count>
+//     <snapshots>
+//       <snapshot>
+//         <name>mysnap</name>
+//         <uuid>b0a12f9e-192b-4691-82e9-1bdb3c33e9f5</uuid>
+//         <description/>
+//         <createTime>2018-03-12 14:35:16</createTime>
+//         <volCount>1</volCount>
+//         <snapVolume>
+//           <name>4516d565579c47cf82081e84f8049ae9</name>
+//           <status>Stopped</status>
+//           <originVolume>
+//             <name>vol_10dca02524ed01e4a6cded5eacc04b96</name>
+//             <snapCount>2</snapCount>
+//             <snapRemaining>254</snapRemaining>
+//           </originVolume>
+//         </snapVolume>
+//       </snapshot>
+//     </snapshots>
+//   </snapInfo>
+// </cliOutput>
+type VolumeSnapshot struct {
+	XMLName     xml.Name `xml:"snapshot"`
+	Name        string   `xml:"name"`
+	UUID        string   `xml:"uuid"`
+	Description string   `xml:"description"`
+	CreateTime  string   `xml:"createTime"`
+	// TODO: do we care about, or need other fields? originVolume/name was passed by the caller
 }
 
 type Brick struct {
