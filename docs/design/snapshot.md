@@ -40,7 +40,7 @@ $ heketi-cli volume clone <vol_uuid>
 
 # API Proposal
 
-The API is layed out here for file volume types only. The samy API will be
+The API is layed out here for file volume types only. The same API will be
 added for block-volumes at a later time.
 
 ### Create a Snapshot
