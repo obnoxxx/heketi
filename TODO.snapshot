@@ -1,0 +1,12 @@
+- pkg/glusterfs/api/types.go snapshot / clone extensions
+  - snapshot entry / info
+  - requests
+
+- create apps/glusterfs/snapshot_entry.go
+  - snapshot entry data type
+  - operations
+
+- create snapshot operations in apps/glusterfs/operations.go
+  (SnapshotCreate, ....).Build/Exec/ etc
+
+- create executor/cmdexec/snapshot.go
