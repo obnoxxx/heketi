@@ -31,6 +31,13 @@ $ heketi-cli volume snapshot-list <vol_uuid>
 $ heketi-cli volume snapshot-info <snap_uuid>
 ```
 
+Convenience call for direct volume cloning:
+
+```
+$ heketi-cli volume clone <vol_uuid>
+```
+
+
 # API Proposal
 
 The API is layed out here for file volume types only. The samy API will be
