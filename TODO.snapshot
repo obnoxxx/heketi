@@ -10,3 +10,5 @@
   (SnapshotCreate, ....).Build/Exec/ etc
 
 - create executor/cmdexec/snapshot.go
+
+- cli: use "volume snapshot <cmd>" instead of "volume snapshot-<cmd>"
