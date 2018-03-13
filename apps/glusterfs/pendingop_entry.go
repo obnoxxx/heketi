@@ -216,6 +216,17 @@ func (p *PendingOperationEntry) RecordDeleteVolume(v *VolumeEntry) {
 	v.Pending.Id = p.Id
 }
 
+func (p *PendingOperationEntry) RecordSnapshotVolume(v *VolumeEntry) {
+	p.recordChange(OpSnapshotVolume, v.Info.Id)
+	p.Type = OperationSnapshotVolume
+	v.Pending.Id = p.Id
+}
+
+func (p *PendingOperationEntry) FinalizeVolumeSnapshot(s *SnapshotEntry) {
+	s.Pending.Id = ""
+	return
+}
+
 // RecordAddHostingVolume adds tracking metadata for a file volume that hosts
 // a block volume
 func (p *PendingOperationEntry) RecordAddHostingVolume(v *VolumeEntry) {

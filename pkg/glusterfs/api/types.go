@@ -351,6 +351,15 @@ type VolumeCloneRequest struct {
 	Description string `json:"description,omitempty"`
 }
 
+type SnapshotInfo struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	UUID        string `json:"uuid"`
+	Description string `json:"description,omitempty"`
+	CreateTime  string `json:"createTime,omitempty"`
+	Type        string `json:"type"` // TODO: this should be 'file-volume' or 'block-volume'
+}
+
 // BlockVolume
 
 type BlockVolumeCreateRequest struct {

@@ -409,6 +409,94 @@ func (vdel *VolumeDeleteOperation) Finalize() error {
 	})
 }
 
+// VolumeSnapshotOperation implements the operation functions used to
+// create a snapshot of an existing volume.
+type VolumeSnapshotOperation struct {
+	OperationManager
+	snap *SnapshotEntry
+	vol  *VolumeEntry
+}
+
+func NewVolumeSnapshotOperation(
+	vol *VolumeEntry, db wdb.DB) *VolumeSnapshotOperation {
+
+	return &VolumeSnapshotOperation{
+		OperationManager: OperationManager{
+			db: db,
+			op: NewPendingOperationEntry(NEW_ID),
+		},
+		vol:  vol,
+		snap: nil,
+	}
+}
+
+func (vs *VolumeSnapshotOperation) Label() string {
+	return "Create Snapshot of a Volume"
+}
+
+func (vs *VolumeSnapshotOperation) ResourceUrl() string {
+	return fmt.Sprintf("/volumes/%v/snapshots", vs.vol.Info.Id)
+}
+
+func (vs *VolumeSnapshotOperation) Build() error {
+	// TODO: finish the implementation...
+	return vs.db.Update(func(tx *bolt.Tx) error {
+		vs.snap = NewSnapshotEntry()
+		vs.op.RecordSnapshotVolume(vs.vol)
+		if e := vs.vol.Save(tx); e != nil {
+			return e
+		}
+		if e := vs.snap.Save(tx); e != nil {
+			return e
+		}
+		if e := vs.op.Save(tx); e != nil {
+			return e
+		}
+		return nil
+	})
+}
+
+func (vs *VolumeSnapshotOperation) Exec(executor executors.Executor) error {
+	// TODO: finish the implementation...
+	err := vs.vol.snapshotVolumeExec(vs.db, executor)
+	if err != nil {
+		logger.LogError("Error executing delete volume: %v", err)
+	}
+	return err
+}
+
+func (vs *VolumeSnapshotOperation) Rollback(executor executors.Executor) error {
+	// TODO: finish the implementation...
+	return vs.db.Update(func(tx *bolt.Tx) error {
+		vs.op.FinalizeVolumeSnapshot(vs.snap)
+		if e := vs.vol.Save(tx); e != nil {
+			return e
+		}
+		if e := vs.snap.Save(tx); e != nil {
+			return e
+		}
+
+		vs.op.Delete(tx)
+		return nil
+	})
+}
+
+func (vs *VolumeSnapshotOperation) Finalize() error {
+	// TODO: finalize the implementation ...
+	return vs.db.Update(func(tx *bolt.Tx) error {
+		vs.op.FinalizeVolumeSnapshot(vs.snap)
+		if err := vs.vol.Save(tx); err != nil {
+			return err
+		}
+		if err := vs.snap.Save(tx); err != nil {
+			return err
+		}
+
+		vs.op.Delete(tx)
+		return nil
+	})
+}
+
 // BlockVolumeCreateOperation  implements the operation functions used to
 // create a new volume.
 type BlockVolumeCreateOperation struct {

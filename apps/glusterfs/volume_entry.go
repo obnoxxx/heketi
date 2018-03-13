@@ -12,6 +12,7 @@ package glusterfs
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"sort"
 
@@ -707,4 +708,25 @@ func eligibleClusters(db wdb.RODB, req ClusterReq,
 	})
 
 	return candidateClusters, err
+}
+
+func (v *VolumeEntry) snapshotVolumeExec(db wdb.DB,
+	executor executors.Executor) (e error) {
+
+	vsr, host, err := v.snapshotVolumeRequest(db, v.Info.Name)
+	if err != nil {
+		return err
+	}
+
+	_, err = executor.VolumeSnapshot(host, vsr)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TODO: implement snapshotVolumeRequest
+func (v *VolumeEntry) snapshotVolumeRequest(db wdb.RODB, snapshot string) (*executors.VolumeSnapshotRequest, string, error) {
+	return nil, "", errors.New("snapshotVolumeRequest not implemented yet")
 }
