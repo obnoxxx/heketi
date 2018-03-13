@@ -335,6 +335,13 @@ type VolumeSnapshotRequest struct {
 	Description string `json:"description,omitempty"`
 }
 
+func (vscr VolumeSnapshotRequest) Validate() error {
+	return validation.ValidateStruct(&vscr,
+		validation.Field(&vscr.Name, validation.By(ValidateUUID)),
+		validation.Field(&vscr.Description, validation.Skip),
+	)
+}
+
 type SnapshotCloneRequest struct {
 	Name string `json:"name,omitempty"`
 }
