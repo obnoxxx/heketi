@@ -295,7 +295,8 @@ func (s *CmdExecutor) VolumeSnapshotCreate(host string, vsr *executors.VolumeSna
 	}
 
 	command := []string{
-		fmt.Sprintf("gluster --mode=script --xml snapshot create %v %v no-timestamp", vsr.Name, vsr.Volume),
+		fmt.Sprintf("gluster --mode=script --xml snapshot create %v %v no-timestamp", vsr.Snapshot, vsr.Volume),
+		// TODO: set the snapshot description if vsr.Description is non-empty
 	}
 
 	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
@@ -313,16 +314,193 @@ func (s *CmdExecutor) VolumeSnapshotCreate(host string, vsr *executors.VolumeSna
 	return &snapCreate.VolumeSnapshot, nil
 }
 
-func (s *CmdExecutor) VolumeSnapshotClone(host string, volume *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
-	return nil, fmt.Errorf("VolumeSnapshotClone is not implemented yet")
+func (s *CmdExecutor) volumeSnapshotActivate(host string, snapshot string) error {
+	godbc.Require(host != "")
+	godbc.Require(snapshot != "")
+
+	type CliOutput struct {
+		OpRet          int                      `xml:"opRet"`
+		OpErrno        int                      `xml:"opErrno"`
+		OpErrStr       string                   `xml:"opErrstr"`
+		VolumeSnapshot executors.VolumeSnapshot `xml:"snapActivate"`
+	}
+
+	command := []string{
+		fmt.Sprintf("gluster --mode=script --xml snapshot activate %v", snapshot),
+	}
+
+	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
+	if err != nil {
+		return fmt.Errorf("Unable to activate snapshot: %v", snapshot)
+	}
+
+	var snapActivate CliOutput
+	err = xml.Unmarshal([]byte(output[0]), &snapActivate)
+	if err != nil {
+		return fmt.Errorf("Unable to activate snapshot: %v", snapshot)
+	}
+	logger.Debug("%+v\n", snapActivate)
+
+	return nil
+}
+
+func (s *CmdExecutor) volumeSnapshotDeactivate(host string, snapshot string) error {
+	godbc.Require(host != "")
+	godbc.Require(snapshot != "")
+
+	type CliOutput struct {
+		OpRet          int                      `xml:"opRet"`
+		OpErrno        int                      `xml:"opErrno"`
+		OpErrStr       string                   `xml:"opErrstr"`
+		VolumeSnapshot executors.VolumeSnapshot `xml:"snapDeactivate"`
+	}
+
+	command := []string{
+		fmt.Sprintf("gluster --mode=script --xml snapshot deactivate %v", snapshot),
+	}
+
+	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
+	if err != nil {
+		return fmt.Errorf("Unable to deactivate snapshot: %v", snapshot)
+	}
+
+	var snapDeactivate CliOutput
+	err = xml.Unmarshal([]byte(output[0]), &snapDeactivate)
+	if err != nil {
+		return fmt.Errorf("Unable to deactivate snapshot: %v", snapshot)
+	}
+	logger.Debug("%+v\n", snapDeactivate)
+
+	return nil
+}
+
+func (s *CmdExecutor) VolumeSnapshotClone(host string, vsr *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
+	godbc.Require(host != "")
+	godbc.Require(vsr != nil)
+
+	// cloning can only be done when a snapshot is acticated
+	err := s.volumeSnapshotActivate(host, vsr.Snapshot)
+	if err != nil {
+		return nil, err
+	}
+
+	// we do not want activated snapshots sticking around
+	defer s.volumeSnapshotDeactivate(host, vsr.Snapshot)
+
+	type CliOutput struct {
+		OpRet    int              `xml:"opRet"`
+		OpErrno  int              `xml:"opErrno"`
+		OpErrStr string           `xml:"opErrstr"`
+		Volume   executors.Volume `xml:"CloneCreate"`
+	}
+
+	command := []string{
+		fmt.Sprintf("gluster --mode=script --xml snapshot clone %v %v", vsr.Volume, vsr.Snapshot),
+	}
+
+	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to clone snapshot: %v", vsr.Snapshot)
+	}
+
+	var snapCreate CliOutput
+	err = xml.Unmarshal([]byte(output[0]), &snapCreate)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to clone snapshot: %v", vsr.Snapshot)
+	}
+	logger.Debug("%+v\n", snapCreate)
+
+	return &snapCreate.Volume, nil
 }
 
 func (s *CmdExecutor) VolumeSnapshotDestroy(host string, snapshot string) error {
-	return fmt.Errorf("VolumeSnapshotDestroy is not implemented yet")
+	godbc.Require(host != "")
+	godbc.Require(snapshot != "")
+
+	type CliOutput struct {
+		OpRet          int                      `xml:"opRet"`
+		OpErrno        int                      `xml:"opErrno"`
+		OpErrStr       string                   `xml:"opErrstr"`
+		VolumeSnapshot executors.VolumeSnapshot `xml:"snapDelete"`
+	}
+
+	command := []string{
+		fmt.Sprintf("gluster --mode=script --xml snapshot delete %v", snapshot),
+	}
+
+	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
+	if err != nil {
+		return fmt.Errorf("Unable to delete snapshot: %v", snapshot)
+	}
+
+	var snapDelete CliOutput
+	err = xml.Unmarshal([]byte(output[0]), &snapDelete)
+	if err != nil {
+		return fmt.Errorf("Unable to delete snapshot: %v", snapshot)
+	}
+	logger.Debug("%+v\n", snapDelete)
+
+	return nil
 }
 
 func (s *CmdExecutor) VolumeSnapshotInfo(host string, snapshot string) (*executors.VolumeSnapshot, error) {
-	return nil, fmt.Errorf("VolumeSnapshotInfo is not implemented yet")
+	godbc.Require(host != "")
+	godbc.Require(snapshot != "")
+
+	// info of a single snapshot returns a list of snapshots...
+	// # gluster --mode=script --xml snapshot info mysnap
+	// <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	// <cliOutput>
+	//   <opRet>0</opRet>
+	//   <opErrno>0</opErrno>
+	//   <opErrstr/>
+	//   <snapInfo>
+	//     <count>1</count>
+	//     <snapshots>
+	//       <snapshot>
+	//         <name>mysnap</name>
+	//         <uuid>b0a12f9e-192b-4691-82e9-1bdb3c33e9f5</uuid>
+	//         <description/>
+	//         <createTime>2018-03-12 14:35:16</createTime>
+	//         <volCount>1</volCount>
+	//         <snapVolume>
+	//           <name>4516d565579c47cf82081e84f8049ae9</name>
+	//           <status>Stopped</status>
+	//           <originVolume>
+	//             <name>vol_10dca02524ed01e4a6cded5eacc04b96</name>
+	//             <snapCount>2</snapCount>
+	//             <snapRemaining>254</snapRemaining>
+	//           </originVolume>
+	//         </snapVolume>
+	//       </snapshot>
+	//     </snapshots>
+	//   </snapInfo>
+	// </cliOutput>
+
+	type CliOutput struct {
+		OpRet          int                        `xml:"opRet"`
+		OpErrno        int                        `xml:"opErrno"`
+		OpErrStr       string                     `xml:"opErrstr"`
+		VolumeSnapshot []executors.VolumeSnapshot `xml:"snapshots"` // TODO: does this work without mentioning <snapInfo>?
+	}
+
+	command := []string{
+		fmt.Sprintf("gluster --mode=script --xml snapshot info %v", snapshot),
+	}
+
+	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
+	if err != nil {
+		return nil, fmt.Errorf("Unable get information about snapshot: %v", snapshot)
+	}
+
+	var snapInfo CliOutput
+	err = xml.Unmarshal([]byte(output[0]), &snapInfo)
+	if err != nil {
+		return nil, fmt.Errorf("Unable get information about snapshot: %v", snapshot)
+	}
+	logger.Debug("%+v\n", snapInfo)
+
+	return &snapInfo.VolumeSnapshot[0], nil
 }
 
 func (s *CmdExecutor) HealInfo(host string, volume string) (*executors.HealInfo, error) {

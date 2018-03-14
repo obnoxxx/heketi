@@ -86,12 +86,15 @@ type VolumeRequest struct {
 	Replica int
 }
 
+// TODO: split this in two types?
+// This type is used for VolumeSnapshotCreate and VolumeSnapshotClone.
+//
+// VolumeSnapshotCreate uses Volume as source volume to create the snapshot from.
+// VolumeSnapshotClone uses Volume as the name of the new volume cloned from the snapshot.
 type VolumeSnapshotRequest struct {
-	// name of the volume to clone
 	Volume      string
-	// new, cloned volume name
-	Name        string
-	Description string
+	Snapshot    string
+	Description string // optional for VolumeSnapshotCreate, unused with VolumeSnapshotClone
 }
 
 // TODO: automagically parse the XML output into types/structs
@@ -131,6 +134,7 @@ type VolumeSnapshot struct {
 	Description string   `xml:"description"`
 	CreateTime  string   `xml:"createTime"`
 	// TODO: do we care about, or need other fields? originVolume/name was passed by the caller
+	// only 'gluster volume snapshot info' fills all fields, the structure returned by other commands only have Name and UUID.
 }
 
 type Brick struct {

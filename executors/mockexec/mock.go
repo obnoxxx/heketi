@@ -116,18 +116,20 @@ func NewMockExecutor() (*MockExecutor, error) {
 		return vinfo, nil
 	}
 
-	m.MockVolumeSnapshotCreate = func(host string, volume *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error) {
+	m.MockVolumeSnapshotCreate = func(host string, vsr *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error) {
 		snapshot := &executors.VolumeSnapshot{
-			Name: volume.Name,
+			Name: vsr.Snapshot,
 			// TODO: fill more properties
 		}
 
 		return snapshot, nil
 	}
 
-	m.MockVolumeSnapshotClone = func(host string, volume *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
-		vinfo := &executors.Volume{}
-		// TODO: fill more properties
+	m.MockVolumeSnapshotClone = func(host string, vsr *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
+		vinfo := &executors.Volume{
+			VolumeName: vsr.Volume,
+			// TODO: fill more properties
+		}
 
 		return vinfo, nil
 	}
