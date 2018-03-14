@@ -283,8 +283,34 @@ func (s *CmdExecutor) VolumeReplaceBrick(host string, volume string, oldBrick *e
 
 }
 
-func (s *CmdExecutor) VolumeSnapshotCreate(host string, volume *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error) {
-	return nil, fmt.Errorf("VolumeSnapshotCreate is not implemented yet")
+func (s *CmdExecutor) VolumeSnapshotCreate(host string, vsr *executors.VolumeSnapshotRequest) (*executors.VolumeSnapshot, error) {
+	godbc.Require(host != "")
+	godbc.Require(vsr != nil)
+
+	type CliOutput struct {
+		OpRet          int                      `xml:"opRet"`
+		OpErrno        int                      `xml:"opErrno"`
+		OpErrStr       string                   `xml:"opErrstr"`
+		VolumeSnapshot executors.VolumeSnapshot `xml:"snapCreate"`
+	}
+
+	command := []string{
+		fmt.Sprintf("gluster --mode=script --xml snapshot create %v %v no-timestamp", vsr.Name, vsr.Volume),
+	}
+
+	output, err := s.RemoteExecutor.RemoteCommandExecute(host, command, 10)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to create snapshot of volume: %v", vsr.Volume)
+	}
+
+	var snapCreate CliOutput
+	err = xml.Unmarshal([]byte(output[0]), &snapCreate)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to create snapshot of volume: %v", vsr.Volume)
+	}
+	logger.Debug("%+v\n", snapCreate)
+
+	return &snapCreate.VolumeSnapshot, nil
 }
 
 func (s *CmdExecutor) VolumeSnapshotClone(host string, volume *executors.VolumeSnapshotRequest) (*executors.Volume, error) {
