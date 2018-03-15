@@ -1,6 +1,4 @@
-- pkg/glusterfs/api/types.go snapshot / clone extensions
-  - snapshot entry / info
-  - requests
+## TODO
 
 - create apps/glusterfs/snapshot_entry.go
   - snapshot entry data type
@@ -8,7 +6,24 @@
 
 - create snapshot operations in apps/glusterfs/operations.go
   (SnapshotCreate, ....).Build/Exec/ etc
+  - SnapshotClone() should call executor.SnapshotCloneVolume() or executor.SnapshotCloneBlockVolume()
+
+- implement API handling in apps/glusterfs/app_volume.go
+
+- implement API handling in apps/glusterfs/app_snapshot.go
+
+- client needs to call to service in client/cli/go/cmds/snapshot.go
+
+
+## DONE
+
+- pkg/glusterfs/api/types.go snapshot / clone extensions
+  - snapshot entry / info
+  - requests
+
+- cli: use "volume snapshot <cmd>" instead of "volume snapshot-<cmd>"
+  - **now**: "volume snapshot", "volume clone" and "snapshot .."
 
 - create executor/cmdexec/snapshot.go
 
-- cli: use "volume snapshot <cmd>" instead of "volume snapshot-<cmd>"
+- executor.cmdexec.VolumeClone() creates a snapshot, clones it and deletes the snapshot
