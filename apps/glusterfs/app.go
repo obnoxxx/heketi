@@ -391,6 +391,11 @@ func (a *App) SetRoutes(router *mux.Router) error {
 
 		// Volume Snapshots
 		rest.Route{
+			Name:        "VolumeClone",
+			Method:      "POST",
+			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/clone",
+			HandlerFunc: a.VolumeClone},
+		rest.Route{
 			Name:        "VolumeSnapshot",
 			Method:      "POST",
 			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshot",

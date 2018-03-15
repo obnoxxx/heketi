@@ -329,6 +329,18 @@ func (a *App) VolumeExpand(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *App) VolumeClone(w http.ResponseWriter, r *http.Request) {
+	var msg api.VolumeCloneRequest
+
+	err := utils.GetJsonFromRequest(r, &msg)
+	if err != nil {
+		http.Error(w, "request unable to be parsed", http.StatusUnprocessableEntity)
+		return
+	}
+
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 func (a *App) VolumeSnapshot(w http.ResponseWriter, r *http.Request) {
 	var msg api.VolumeSnapshotRequest
 

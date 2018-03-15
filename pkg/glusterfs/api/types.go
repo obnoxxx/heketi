@@ -339,6 +339,11 @@ type SnapshotCloneRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
+type VolumeCloneRequest struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 // BlockVolume
 
 type BlockVolumeCreateRequest struct {
