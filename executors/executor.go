@@ -27,11 +27,12 @@ type Executor interface {
 	VolumeExpand(host string, volume *VolumeRequest) (*Volume, error)
 	VolumeReplaceBrick(host string, volume string, oldBrick *BrickInfo, newBrick *BrickInfo) error
 	VolumeInfo(host string, volume string) (*Volume, error)
-	VolumeSnapshotCreate(host string, volume *VolumeSnapshotRequest) (*VolumeSnapshot, error)
-	VolumeSnapshotClone(host string, volume *VolumeSnapshotRequest) (*Volume, error)
-	VolumeSnapshotDestroy(host string, snapshot string) error
-	// TODO(removeme): VolumeSnapshotList is a DB operation, not remote
-	VolumeSnapshotInfo(host string, snapshot string) (*VolumeSnapshot, error)
+	VolumeClone(host string, vsr *VolumeCloneRequest) (*Volume, error)
+	VolumeSnapshot(host string, vsr *VolumeSnapshotRequest) (*Snapshot, error)
+	SnapshotCloneVolume(host string, scr *SnapshotCloneRequest) (*Volume, error)
+	SnapshotCloneBlockVolume(host string, scr *SnapshotCloneRequest) (*BlockVolumeInfo, error)
+	SnapshotDestroy(host string, snapshot string) error
+	SnapshotInfo(host string, snapshot string) (*Snapshot, error)
 	HealInfo(host string, volume string) (*HealInfo, error)
 	SetLogLevel(level string)
 	BlockVolumeCreate(host string, blockVolume *BlockVolumeRequest) (*BlockVolumeInfo, error)
@@ -86,15 +87,20 @@ type VolumeRequest struct {
 	Replica int
 }
 
-// TODO: split this in two types?
-// This type is used for VolumeSnapshotCreate and VolumeSnapshotClone.
-//
-// VolumeSnapshotCreate uses Volume as source volume to create the snapshot from.
-// VolumeSnapshotClone uses Volume as the name of the new volume cloned from the snapshot.
+type VolumeCloneRequest struct {
+	Volume string
+	Clone  string
+}
+
 type VolumeSnapshotRequest struct {
 	Volume      string
 	Snapshot    string
-	Description string // optional for VolumeSnapshotCreate, unused with VolumeSnapshotClone
+	Description string
+}
+
+type SnapshotCloneRequest struct {
+	Volume   string
+	Snapshot string
 }
 
 // TODO: automagically parse the XML output into types/structs
@@ -127,7 +133,7 @@ type VolumeSnapshotRequest struct {
 //     </snapshots>
 //   </snapInfo>
 // </cliOutput>
-type VolumeSnapshot struct {
+type Snapshot struct {
 	XMLName     xml.Name `xml:"snapshot"`
 	Name        string   `xml:"name"`
 	UUID        string   `xml:"uuid"`
