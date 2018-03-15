@@ -208,5 +208,6 @@ func (s *CmdExecutor) SnapshotInfo(host string, snapshot string) (*executors.Sna
 	}
 	logger.Debug("%+v\n", snapInfo)
 
+	// TODO: instead of Snapshot[0], it would be better to search for Snapshot.Name == snapshot
 	return &snapInfo.Snapshot[0], nil
 }
