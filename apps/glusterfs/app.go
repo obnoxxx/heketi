@@ -393,28 +393,28 @@ func (a *App) SetRoutes(router *mux.Router) error {
 		rest.Route{
 			Name:        "VolumeSnapshotCreate",
 			Method:      "POST",
-			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots",
+			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshot",
 			HandlerFunc: a.VolumeSnapshotCreate},
 		rest.Route{
-			Name:        "VolumeSnapshotInfo",
+			Name:        "SnapshotInfo",
 			Method:      "GET",
-			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots/{id:[A-Fa-f0-9]+}",
-			HandlerFunc: a.VolumeSnapshotInfo},
+			Pattern:     "/snapshots/{id:[A-Fa-f0-9]+}",
+			HandlerFunc: a.SnapshotInfo},
 		rest.Route{
-			Name:        "VolumeSnapshotClone",
+			Name:        "SnapshotClone",
 			Method:      "POST",
-			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots/{id:[A-Fa-f0-9]+}/clone",
-			HandlerFunc: a.VolumeSnapshotClone},
+			Pattern:     "/snapshots/{id:[A-Fa-f0-9]+}/clone",
+			HandlerFunc: a.SnapshotClone},
 		rest.Route{
-			Name:        "VolumeSnapshotDelete",
+			Name:        "SnapshotDelete",
 			Method:      "DELETE",
-			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots/{id:[A-Fa-f0-9]+}",
-			HandlerFunc: a.VolumeSnapshotDelete},
+			Pattern:     "/snapshots/{id:[A-Fa-f0-9]+}",
+			HandlerFunc: a.SnapshotDelete},
 		rest.Route{
-			Name:        "VolumeSnapshotList",
+			Name:        "SnapshotList",
 			Method:      "GET",
-			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshots",
-			HandlerFunc: a.VolumeSnapshotList},
+			Pattern:     "/snapshots",
+			HandlerFunc: a.SnapshotList},
 
 		// BlockVolumes
 		rest.Route{

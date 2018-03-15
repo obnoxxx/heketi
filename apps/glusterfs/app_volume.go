@@ -341,12 +341,12 @@ func (a *App) VolumeSnapshotCreate(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-func (a *App) VolumeSnapshotInfo(w http.ResponseWriter, r *http.Request) {
+func (a *App) SnapshotInfo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-func (a *App) VolumeSnapshotClone(w http.ResponseWriter, r *http.Request) {
-	var msg api.VolumeSnapshotCloneRequest
+func (a *App) SnapshotClone(w http.ResponseWriter, r *http.Request) {
+	var msg api.SnapshotCloneRequest
 
 	err := utils.GetJsonFromRequest(r, &msg)
 	if err != nil {
@@ -357,10 +357,10 @@ func (a *App) VolumeSnapshotClone(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-func (a *App) VolumeSnapshotDelete(w http.ResponseWriter, r *http.Request) {
+func (a *App) SnapshotDelete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-func (a *App) VolumeSnapshotList(w http.ResponseWriter, r *http.Request) {
+func (a *App) SnapshotList(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }

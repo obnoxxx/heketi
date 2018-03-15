@@ -335,7 +335,7 @@ type VolumeSnapshotCreateRequest struct {
 	Description string `json:"description,omitempty"`
 }
 
-type VolumeSnapshotCloneRequest struct {
+type SnapshotCloneRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
