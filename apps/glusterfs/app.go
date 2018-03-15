@@ -391,10 +391,10 @@ func (a *App) SetRoutes(router *mux.Router) error {
 
 		// Volume Snapshots
 		rest.Route{
-			Name:        "VolumeSnapshotCreate",
+			Name:        "VolumeSnapshot",
 			Method:      "POST",
 			Pattern:     "/volumes/{id:[A-Fa-f0-9]+}/snapshot",
-			HandlerFunc: a.VolumeSnapshotCreate},
+			HandlerFunc: a.VolumeSnapshot},
 		rest.Route{
 			Name:        "SnapshotInfo",
 			Method:      "GET",

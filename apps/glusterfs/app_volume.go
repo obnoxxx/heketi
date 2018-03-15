@@ -329,8 +329,8 @@ func (a *App) VolumeExpand(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *App) VolumeSnapshotCreate(w http.ResponseWriter, r *http.Request) {
-	var msg api.VolumeSnapshotCreateRequest
+func (a *App) VolumeSnapshot(w http.ResponseWriter, r *http.Request) {
+	var msg api.VolumeSnapshotRequest
 
 	err := utils.GetJsonFromRequest(r, &msg)
 	if err != nil {

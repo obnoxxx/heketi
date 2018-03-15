@@ -330,7 +330,7 @@ func (volExpandReq VolumeExpandRequest) Validate() error {
 	)
 }
 
-type VolumeSnapshotCreateRequest struct {
+type VolumeSnapshotRequest struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 }
