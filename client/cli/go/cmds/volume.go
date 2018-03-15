@@ -107,7 +107,7 @@ func init() {
 		"\n\tOptional: Name of the snapshot. Only set if really necessary")
 	volumeSnapshotCommand.Flags().StringVar(&description, "description", "",
 		"\n\tOptional: Human readable description for the snapshot")
-	volumeSnapshotCreateCommand.SilenceUsage = true
+	volumeSnapshotCommand.SilenceUsage = true
 }
 
 var volumeCommand = &cobra.Command{
@@ -404,11 +404,11 @@ var volumeSnapshotCommand = &cobra.Command{
 			return errors.New("Volume id missing")
 		}
 
-		// TODO: implement heketi.VolumeSnapshotCreate
+		// TODO: implement heketi.VolumeSnapshot
 
 		//volumeId := cmd.Flags().Arg(0)
 		//heketi := client.NewClient(options.Url, options.User, options.Key)
-		//snapshot, err := heketi.VolumeSnapshotCreate(volumeId)
+		//snapshot, err := heketi.VolumeSnapshot(volumeId)
 		err := errors.New("snapshot is not implemented yet")
 
 		return err

@@ -340,27 +340,3 @@ func (a *App) VolumeSnapshotCreate(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNotImplemented)
 }
-
-func (a *App) SnapshotInfo(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-func (a *App) SnapshotClone(w http.ResponseWriter, r *http.Request) {
-	var msg api.SnapshotCloneRequest
-
-	err := utils.GetJsonFromRequest(r, &msg)
-	if err != nil {
-		http.Error(w, "request unable to be parsed", http.StatusUnprocessableEntity)
-		return
-	}
-
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-func (a *App) SnapshotDelete(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-func (a *App) SnapshotList(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
