@@ -10,6 +10,7 @@
 package glusterfs
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -495,6 +496,58 @@ func (vs *VolumeSnapshotOperation) Finalize() error {
 		vs.op.Delete(tx)
 		return nil
 	})
+}
+
+// SnapshotCloneOperation implements the operation functions used to clone a
+// snapshot into an new volume.
+type SnapshotCloneOperation struct {
+	OperationManager
+	snap *SnapshotEntry
+	// depending on the SnapshotEntry.Info.Type, either vol or bvol will be set
+	vol  *VolumeEntry
+	bvol *BlockVolumeEntry
+}
+
+func NewSnapshotCloneOperation(
+	snap *SnapshotEntry, db wdb.DB) *SnapshotCloneOperation {
+
+	return &SnapshotCloneOperation{
+		OperationManager: OperationManager{
+			db: db,
+			op: NewPendingOperationEntry(NEW_ID),
+		},
+		snap: snap,
+		vol:  nil,
+		bvol: nil,
+	}
+}
+
+func (sc *SnapshotCloneOperation) Label() string {
+	return "Clone a snapshot into a new volume"
+}
+
+func (sc *SnapshotCloneOperation) ResourceUrl() string {
+	return fmt.Sprintf("/snapshot/%v/clone", sc.snap.Info.Id)
+}
+
+func (sc *SnapshotCloneOperation) Build() error {
+	// TODO: complete the implementation...
+	return errors.New("not implemented yet")
+}
+
+func (sc *SnapshotCloneOperation) Exec(executor executors.Executor) error {
+	// TODO: finish the implementation...
+	return errors.New("not implemented yet")
+}
+
+func (sc *SnapshotCloneOperation) Rollback(executor executors.Executor) error {
+	// TODO: finish the implementation...
+	return errors.New("not implemented yet")
+}
+
+func (sc *SnapshotCloneOperation) Finalize() error {
+	// TODO: finalize the implementation ...
+	return errors.New("not implemented yet")
 }
 
 // BlockVolumeCreateOperation  implements the operation functions used to
