@@ -73,6 +73,12 @@ func initializeBuckets(tx *bolt.Tx) error {
 		return err
 	}
 
+	_, err = tx.CreateBucketIfNotExists([]byte(BOLTDB_BUCKET_SNAPSHOT))
+	if err != nil {
+		logger.LogError("Unable to create snapshot bucket in DB")
+		return err
+	}
+
 	_, err = tx.CreateBucketIfNotExists([]byte(BOLTDB_BUCKET_DBATTRIBUTE))
 	if err != nil {
 		logger.LogError("Unable to create dbattribute bucket in DB")
