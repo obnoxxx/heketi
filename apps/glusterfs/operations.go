@@ -436,7 +436,7 @@ func (vs *VolumeSnapshotOperation) Label() string {
 }
 
 func (vs *VolumeSnapshotOperation) ResourceUrl() string {
-	return fmt.Sprintf("/volumes/%v/snapshots", vs.vol.Info.Id)
+	return fmt.Sprintf("/volumes/%v/snapshot", vs.vol.Info.Id)
 }
 
 func (vs *VolumeSnapshotOperation) Build() error {
