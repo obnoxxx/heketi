@@ -33,6 +33,7 @@ var (
 	// Volume name constraints decided by looking at
 	// "cli_validate_volname" function in cli-cmd-parser.c of gluster code
 	volumeNameRe = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
+	snapshotNameRe = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 
 	blockVolNameRe = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 )
@@ -337,18 +338,24 @@ type VolumeSnapshotRequest struct {
 
 func (vscr VolumeSnapshotRequest) Validate() error {
 	return validation.ValidateStruct(&vscr,
-		validation.Field(&vscr.Name, validation.By(ValidateUUID)),
+		validation.Field(&vscr.Name, validation.Match(snapshotNameRe)),
 		validation.Field(&vscr.Description, validation.Skip),
 	)
+}
+
+type VolumeCloneRequest struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 type SnapshotCloneRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
-type VolumeCloneRequest struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
+func (scr SnapshotCloneRequest) Validate() error {
+	return validation.ValidateStruct(&scr,
+		validation.Field(&scr.Name, validation.Match(snapshotNameRe)),
+	)
 }
 
 type SnapshotInfo struct {
