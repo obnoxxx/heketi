@@ -17,6 +17,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -638,6 +639,16 @@ func TestClientVolume(t *testing.T) {
 	volumeInfo, err = c.VolumeExpand(volume.Id, expandReq)
 	tests.Assert(t, err == nil)
 	tests.Assert(t, volumeInfo.Size == 20)
+
+	// Clone volume
+	volumeCloneReq := &api.VolumeCloneRequest{}
+	clone, err := c.VolumeClone(volume.Id, volumeCloneReq)
+	tests.Assert(t, strings.Contains(err.Error(), "Invalid path or request"))
+	tests.Assert(t, clone == nil)
+	// TODO: once the server side is implemented
+	//tests.Assert(t, err == nil, err)
+	//tests.Assert(t, clone.Id != volume.Id)
+	//tests.Assert(t, clone.Size == volume.Size)
 
 	// Delete bad id
 	err = c.VolumeDelete("badid")
