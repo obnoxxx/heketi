@@ -37,6 +37,8 @@ aliases['humble@localhost.localdomain']='hchiramm@redhat.com'
 aliases['raghavendra.talur@gmail.com']='rtalur@redhat.com'
 aliases['obnox@samba.org']='obnox@redhat.com'
 aliases['prasanna.kalever@redhat.com']='pkalever@redhat.com'
+aliases['33039589+phlogistonjohn@users.noreply.github.com']='jmulligan@redhat.com'
+aliases['mrajanna@localhost.localdomain']='mrajanna@redhat.com'
 
 declare -A author_commits
 
@@ -69,5 +71,9 @@ echo
 for author in "${!author_commits[@]}"; do
 	echo "${author}: ${author_commits[${author}]}"
 done | sort -k2 -n -r
+
+echo
+
+echo $(git diff --shortstat "${CONDITION}" ':!vendor')
 
 echo
