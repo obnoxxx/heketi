@@ -74,8 +74,8 @@ func NewSshExecutor(config *SshConfig) (*SshExecutor, error) {
 	setWithEnvVariables(config)
 
 	s := &SshExecutor{}
+	s.CmdExecutor.InitFromConfig(&config.CmdConfig)
 	s.RemoteExecutor = s
-	s.Throttlemap = make(map[string]chan bool)
 
 	// Set configuration
 	if config.PrivateKeyFile == "" {
@@ -94,14 +94,6 @@ func NewSshExecutor(config *SshConfig) (*SshExecutor, error) {
 	} else {
 		s.port = config.Port
 	}
-
-	if config.Fstab == "" {
-		s.Fstab = "/etc/fstab"
-	} else {
-		s.Fstab = config.Fstab
-	}
-
-	s.BackupLVM = config.BackupLVM
 
 	// Save the configuration
 	s.config = config

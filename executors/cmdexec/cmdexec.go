@@ -54,6 +54,18 @@ func SetWithEnvVariables(config *CmdConfig) {
 	}
 }
 
+func (c *CmdExecutor) InitFromConfig(config *CmdConfig) {
+	c.Throttlemap = make(map[string]chan bool)
+
+	if config.Fstab == "" {
+		c.Fstab = "/etc/fstab"
+	} else {
+		c.Fstab = config.Fstab
+	}
+
+	c.BackupLVM = config.BackupLVM
+}
+
 func (s *CmdExecutor) AccessConnection(host string) {
 	var (
 		c  chan bool

@@ -82,14 +82,8 @@ func NewKubeExecutor(config *KubeConfig) (*KubeExecutor, error) {
 	// Initialize
 	k := &KubeExecutor{}
 	k.config = config
-	k.Throttlemap = make(map[string]chan bool)
+	k.CmdExecutor.InitFromConfig(&config.CmdConfig)
 	k.RemoteExecutor = k
-
-	if k.config.Fstab == "" {
-		k.Fstab = "/etc/fstab"
-	} else {
-		k.Fstab = config.Fstab
-	}
 
 	var err error
 	// if unset, get namespace
@@ -101,7 +95,6 @@ func NewKubeExecutor(config *KubeConfig) (*KubeExecutor, error) {
 		}
 	}
 
-	k.BackupLVM = config.BackupLVM
 	k.kconn, err = kube.NewKubeConn(logger)
 	if err != nil {
 		return nil, err
