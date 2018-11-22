@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/lpabon/godbc"
 
@@ -52,6 +51,8 @@ var (
 func setWithEnvVariables(config *SshConfig) {
 	var env string
 
+	cmdexec.SetWithEnvVariables(&config.CmdConfig)
+
 	env = os.Getenv("HEKETI_SSH_KEYFILE")
 	if "" != env {
 		config.PrivateKeyFile = env
@@ -66,20 +67,6 @@ func setWithEnvVariables(config *SshConfig) {
 	if "" != env {
 		config.Port = env
 	}
-
-	env = os.Getenv("HEKETI_FSTAB")
-	if "" != env {
-		config.Fstab = env
-	}
-
-	env = os.Getenv("HEKETI_SNAPSHOT_LIMIT")
-	if "" != env {
-		i, err := strconv.Atoi(env)
-		if err == nil {
-			config.SnapShotLimit = i
-		}
-	}
-
 }
 
 func NewSshExecutor(config *SshConfig) (*SshExecutor, error) {

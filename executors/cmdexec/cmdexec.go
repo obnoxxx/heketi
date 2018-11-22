@@ -10,6 +10,8 @@
 package cmdexec
 
 import (
+	"os"
+	"strconv"
 	"sync"
 
 	"github.com/heketi/heketi/pkg/logging"
@@ -33,6 +35,23 @@ type CmdExecutor struct {
 	RemoteExecutor RemoteCommandTransport
 	Fstab          string
 	BackupLVM      bool
+}
+
+func SetWithEnvVariables(config *CmdConfig) {
+	var env string
+
+	env = os.Getenv("HEKETI_FSTAB")
+	if "" != env {
+		config.Fstab = env
+	}
+
+	env = os.Getenv("HEKETI_SNAPSHOT_LIMIT")
+	if "" != env {
+		i, err := strconv.Atoi(env)
+		if err == nil {
+			config.SnapShotLimit = i
+		}
+	}
 }
 
 func (s *CmdExecutor) AccessConnection(host string) {

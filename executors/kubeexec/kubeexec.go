@@ -12,7 +12,6 @@ package kubeexec
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/lpabon/godbc"
@@ -44,25 +43,12 @@ var (
 func setWithEnvVariables(config *KubeConfig) {
 	var env string
 
+	cmdexec.SetWithEnvVariables(&config.CmdConfig)
+
 	// Namespace / Project
 	env = os.Getenv("HEKETI_KUBE_NAMESPACE")
 	if "" != env {
 		config.Namespace = env
-	}
-
-	// FSTAB
-	env = os.Getenv("HEKETI_FSTAB")
-	if "" != env {
-		config.Fstab = env
-	}
-
-	// Snapshot Limit
-	env = os.Getenv("HEKETI_SNAPSHOT_LIMIT")
-	if "" != env {
-		i, err := strconv.Atoi(env)
-		if err == nil {
-			config.SnapShotLimit = i
-		}
 	}
 
 	// Determine if Heketi should communicate with Gluster
