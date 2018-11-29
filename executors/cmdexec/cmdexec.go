@@ -29,6 +29,7 @@ type RemoteCommandTransport interface {
 }
 
 type CmdExecutor struct {
+	config      *CmdConfig
 	Throttlemap map[string]chan bool
 	Lock        sync.Mutex
 
@@ -64,6 +65,8 @@ func (c *CmdExecutor) InitFromConfig(config *CmdConfig) {
 	}
 
 	c.BackupLVM = config.BackupLVM
+
+	c.config = config
 }
 
 func (s *CmdExecutor) AccessConnection(host string) {
@@ -109,4 +112,12 @@ func (s *CmdExecutor) SetLogLevel(level string) {
 
 func (s *CmdExecutor) Logger() *logging.Logger {
 	return logger
+}
+
+func (c *CmdExecutor) RebalanceOnExpansion() bool {
+	return c.config.RebalanceOnExpansion
+}
+
+func (c *CmdExecutor) SnapShotLimit() int {
+	return c.config.SnapShotLimit
 }

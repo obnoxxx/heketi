@@ -147,11 +147,3 @@ func (k *KubeExecutor) ExecCommands(
 
 	return kube.ExecCommands(k.kconn, tc, commands, timeoutMinutes)
 }
-
-func (k *KubeExecutor) RebalanceOnExpansion() bool {
-	return k.config.RebalanceOnExpansion
-}
-
-func (k *KubeExecutor) SnapShotLimit() int {
-	return k.config.SnapShotLimit
-}

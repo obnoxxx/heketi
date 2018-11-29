@@ -126,11 +126,3 @@ func (s *SshExecutor) ExecCommands(
 	// Execute
 	return s.exec.ExecCommands(host+":"+s.port, commands, timeoutMinutes, s.config.Sudo)
 }
-
-func (s *SshExecutor) RebalanceOnExpansion() bool {
-	return s.config.RebalanceOnExpansion
-}
-
-func (s *SshExecutor) SnapShotLimit() int {
-	return s.config.SnapShotLimit
-}
