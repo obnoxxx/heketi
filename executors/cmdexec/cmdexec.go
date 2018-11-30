@@ -26,6 +26,7 @@ type RemoteCommandTransport interface {
 	ExecCommands(host string, commands []string, timeoutMinutes int) (rex.Results, error)
 	RebalanceOnExpansion() bool
 	SnapShotLimit() int
+	GlusterCliTimeout() uint32
 }
 
 type CmdExecutor struct {
@@ -55,6 +56,16 @@ func SetWithEnvVariables(config *CmdConfig) {
 		i, err := strconv.Atoi(env)
 		if err == nil {
 			config.SnapShotLimit = i
+		}
+	}
+
+	env = os.Getenv("HEKETI_GLUSTER_CLI_TIMEOUT")
+	if env != "" {
+		value, err := strconv.ParseInt(env, 10, 32)
+		if err != nil {
+			logger.LogError("Error: While parsing HEKETI_GLUSTER_CLI_TIMEOUT: %v", err)
+		} else {
+			config.GlusterCliTimeout = uint32(value)
 		}
 	}
 }
@@ -124,4 +135,15 @@ func (c *CmdExecutor) RebalanceOnExpansion() bool {
 
 func (c *CmdExecutor) SnapShotLimit() int {
 	return c.config.SnapShotLimit
+}
+
+func (c *CmdExecutor) GlusterCliTimeout() uint32 {
+	if c.config.GlusterCliTimeout == 0 {
+		// Use a longer timeout (10 minutes) than gluster cli's default
+		// of 2 minutes, because some commands take longer in a system
+		// with many volumes.
+		return 600
+	}
+
+	return c.config.GlusterCliTimeout
 }
