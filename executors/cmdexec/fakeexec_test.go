@@ -46,6 +46,9 @@ func NewFakeExecutor(f *CommandFaker) (*FakeExecutor, error) {
 	t.fake = f
 	t.Fstab = "/my/fstab"
 	t.portStr = "22"
+	t.config = &CmdConfig{}
+	t.config.GlusterCliTimeout = 42
+
 	return t, nil
 }
 
