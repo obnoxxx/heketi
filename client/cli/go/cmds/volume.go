@@ -486,7 +486,12 @@ Snapshot Factor: {{.Snapshot.Factor | printf "%.2f"}}
 `
 
 func printVolumeInfo(volume *api.VolumeInfoResponse) {
-	t, err := template.New("volume").Parse(volumeTemplate)
+	fm := template.FuncMap{
+		"numBrickSets": func(v *api.VolumeInfoResponse) int {
+			return len(v.Bricks) / v.Durability.Replicate.Replica
+		},
+	}
+	t, err := template.New("volume").Funcs(fm).Parse(volumeTemplate)
 	if err != nil {
 		panic(err)
 	}
