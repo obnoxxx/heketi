@@ -475,7 +475,7 @@ Block Hosting Restriction: {{.BlockInfo.Restriction}}
 Block Volumes: {{.BlockInfo.BlockVolumes}}
 Durability Type: {{.Durability.Type}}
 {{- if eq .Durability.Type "replicate" }}
-Distributed+Replica: {{.Durability.Replicate.Replica}}
+Replica Count: {{.Durability.Replicate.Replica}}
 {{- else if eq .Durability.Type "disperse" }}
 Disperse Data: {{.Durability.Disperse.Data}}
 Disperse Redundancy: {{.Durability.Disperse.Redundancy}}
