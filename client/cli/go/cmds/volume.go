@@ -474,6 +474,7 @@ Reserved Size: {{.BlockInfo.ReservedSize}}
 Block Hosting Restriction: {{.BlockInfo.Restriction}}
 Block Volumes: {{.BlockInfo.BlockVolumes}}
 Durability Type: {{.Durability.Type}}
+Distribute Count: {{ . | numBrickSets }}
 {{- if eq .Durability.Type "replicate" }}
 Replica Count: {{.Durability.Replicate.Replica}}
 {{- else if eq .Durability.Type "disperse" }}
@@ -488,7 +489,17 @@ Snapshot Factor: {{.Snapshot.Factor | printf "%.2f"}}
 func printVolumeInfo(volume *api.VolumeInfoResponse) {
 	fm := template.FuncMap{
 		"numBrickSets": func(v *api.VolumeInfoResponse) int {
-			return len(v.Bricks) / v.Durability.Replicate.Replica
+
+			switch v.Durability.Type {
+			case api.DurabilityDistributeOnly:
+				return len(v.Bricks)
+			case api.DurabilityReplicate:
+				return len(v.Bricks) / v.Durability.Replicate.Replica
+			case api.DurabilityEC:
+				return len(v.Bricks) / (v.Durability.Disperse.Data + v.Durability.Disperse.Redundancy)
+			default:
+				return 0
+			}
 		},
 	}
 	t, err := template.New("volume").Funcs(fm).Parse(volumeTemplate)
