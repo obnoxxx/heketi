@@ -65,7 +65,7 @@ func (dzm *DeviceZoneMap) Filter(bs *BrickSet, d *DeviceEntry) bool {
 			logger.Warning("device id %v not found in zone map", b.Info.DeviceId)
 			return false
 		}
-		logger.Debug("zone %v in use by brick set")
+		logger.Debug("zone %v in use by brick set", brickZone)
 		zonesUsed[brickZone] = true
 	}
 	dzone := dzm.DeviceZones[d.Info.Id]
