@@ -270,10 +270,13 @@ func (bp *ArbiterBrickPlacer) tryPlaceBrickOnDevice(
 		// populated. If this is a replace, we will have the old brick
 		// at the index and we are OK with re-using its node (as the
 		// standard placer does)
+		if i == index {
+			continue
+		}
 		// If b is nil, it means that this is a "sparse" brick set and
 		// we have not tried allocating a brick for that index yet,
 		// so there's nothing to check.
-		if i == index || b == nil {
+		if b == nil {
 			continue
 		}
 		if b.Info.NodeId == device.NodeId {
