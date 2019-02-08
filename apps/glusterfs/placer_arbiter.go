@@ -152,6 +152,13 @@ func (bp *ArbiterBrickPlacer) Replace(
 	// copy input brick set to working brick set and get the
 	// corresponding device entries for the device set
 	for i, b := range bs.Bricks {
+		if i == index {
+			// don't put the real current brick/device at the
+			// position to be replaced
+			wbs.Insert(i, nil)
+			wds.Insert(i, nil)
+			continue
+		}
 		d, err := dsrc.Device(b.Info.DeviceId)
 		if err != nil {
 			return r, err
