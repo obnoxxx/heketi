@@ -450,12 +450,6 @@ func (v *VolumeEntry) replaceBrickInVolume(db wdb.DB, executor executors.Executo
 func deviceFilterNodesStrict(bs *BrickSet, device *DeviceEntry) bool {
 	deviceOk := true
 	for _, brickInSet := range bs.Bricks {
-		if brickInSet == nil {
-			// This brick has not been allocated yet.
-			// Nothing to check.
-			continue
-		}
-
 		if brickInSet.Info.NodeId == device.NodeId {
 			deviceOk = false
 		}
