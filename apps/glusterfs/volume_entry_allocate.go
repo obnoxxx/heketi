@@ -273,6 +273,11 @@ func (v *VolumeEntry) allocBrickReplacement(db wdb.DB,
 	err = db.Update(func(tx *bolt.Tx) error {
 		// returns true if new device differs from old device
 		diffDevice := func(bs *BrickSet, d *DeviceEntry) bool {
+			deviceOk := deviceFilter(bs, d)
+			if !deviceOk {
+				return false
+			}
+
 			return oldDeviceEntry.Info.Id != d.Info.Id
 		}
 
@@ -441,6 +446,27 @@ func (v *VolumeEntry) replaceBrickInVolume(db wdb.DB, executor executors.Executo
 	return nil
 }
 
+// Do not allow multiple devices from the same node in the brickset.
+func deviceFilterNodesStrict(bs *BrickSet, device *DeviceEntry) bool {
+	deviceOk := true
+	for _, brickInSet := range bs.Bricks {
+		if brickInSet.Info.NodeId == device.NodeId {
+			deviceOk = false
+		}
+	}
+
+	return deviceOk
+}
+
+func deviceFilter(bs *BrickSet, device *DeviceEntry) bool {
+	deviceOk := deviceFilterNodesStrict(bs, device)
+	if !deviceOk {
+		return false
+	}
+
+	return true
+}
+
 func (v *VolumeEntry) allocBricks(
 	db wdb.DB,
 	cluster string,
@@ -467,7 +493,7 @@ func (v *VolumeEntry) allocBricks(
 	err := db.Update(func(tx *bolt.Tx) error {
 		dsrc := NewClusterDeviceSource(tx, cluster)
 		placer := PlacerForVolume(v)
-		r, e := placer.PlaceAll(dsrc, opts, nil)
+		r, e := placer.PlaceAll(dsrc, opts, deviceFilter)
 		if e != nil {
 			return e
 		}
