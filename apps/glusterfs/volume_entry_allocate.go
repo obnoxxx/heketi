@@ -273,7 +273,7 @@ func (v *VolumeEntry) allocBrickReplacement(db wdb.DB,
 	err = db.Update(func(tx *bolt.Tx) error {
 		// returns true if new device differs from old device
 		diffDevice := func(bs *BrickSet, d *DeviceEntry) bool {
-			deviceOk := deviceFilter(bs, d)
+			deviceOk := standardDeviceFilter(bs, d)
 			if !deviceOk {
 				return false
 			}
@@ -458,7 +458,7 @@ func deviceFilterNodesStrict(bs *BrickSet, device *DeviceEntry) bool {
 	return deviceOk
 }
 
-func deviceFilter(bs *BrickSet, device *DeviceEntry) bool {
+func standardDeviceFilter(bs *BrickSet, device *DeviceEntry) bool {
 	deviceOk := deviceFilterNodesStrict(bs, device)
 	if !deviceOk {
 		return false
@@ -493,6 +493,15 @@ func (v *VolumeEntry) allocBricks(
 	err := db.Update(func(tx *bolt.Tx) error {
 		dsrc := NewClusterDeviceSource(tx, cluster)
 		placer := PlacerForVolume(v)
+		//deviceFilter := standardDeviceFilter
+		deviceFilter := func(bs *BrickSet, d *DeviceEntry) bool {
+			deviceOk := standardDeviceFilter(bs, d)
+			if !deviceOk {
+				return false
+			}
+
+			return true
+		}
 		r, e := placer.PlaceAll(dsrc, opts, deviceFilter)
 		if e != nil {
 			return e
