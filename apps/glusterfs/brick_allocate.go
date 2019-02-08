@@ -180,6 +180,17 @@ func tryAllocateBrickOnDevice(
 	device *DeviceEntry,
 	bs *BrickSet) *BrickEntry {
 
+	// Do not allow a device from the same node to be in the set
+	deviceOk := true
+	for _, brickInSet := range bs.Bricks {
+		if brickInSet.Info.NodeId == device.NodeId {
+			deviceOk = false
+		}
+	}
+
+	if !deviceOk {
+		return nil
+	}
 	if pred != nil && !pred(bs, device) {
 		return nil
 	}
